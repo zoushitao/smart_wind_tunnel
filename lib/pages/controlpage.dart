@@ -15,12 +15,19 @@ class _ControlPageState extends State<ControlPage> {
         Expanded(flex: 1, child: Container()),
         Expanded(
           flex: 10,
-          child: Padding(
-              padding: EdgeInsets.all(15.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: ModeSettingsWidget(),
-              )),
+          child: ListView(
+            children: [
+              SizedBox(
+                height: 400,
+                child: Padding(
+                    padding: EdgeInsets.all(15.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: ModeSettingsWidget(),
+                    )),
+              ),
+            ],
+          ),
         ),
         Expanded(flex: 1, child: Container())
       ],

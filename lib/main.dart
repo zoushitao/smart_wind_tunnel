@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false, //禁用debug横幅
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigoAccent),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
         useMaterial3: true,
       ),
       home: const MainApp(),
@@ -173,13 +173,20 @@ class _BottomBarState extends State<BottomBar> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity, // 将宽度设置为无限大
-      height: 30, // 将高度设置为无限大
+      height: 30, //将高度设置
       color: Theme.of(context).primaryColor,
-      child: Text(
-        'Hello World',
-        style: TextStyle(
-          color: Colors.white,
-        ),
+      child: const Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              'Hello World',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
