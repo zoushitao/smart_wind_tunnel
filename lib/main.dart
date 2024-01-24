@@ -42,10 +42,14 @@ class _MainAppState extends State<MainApp> {
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
         appBar: appBar(context),
-        bottomNavigationBar: Container(
-            width: double.infinity, // 将宽度设置为无限大
-            height: 25, // 将高度设置为无限大
-            color: Theme.of(context).primaryColor),
+        bottomNavigationBar: BottomBar(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            // 在这里添加你的按钮点击事件处理
+          },
+          child: Icon(Icons.pause),
+          backgroundColor: Colors.green,
+        ),
         body: Row(
           children: [
             SafeArea(child: NavigationBar(constraints)),
@@ -151,6 +155,32 @@ class _MainAppState extends State<MainApp> {
           ],
         );
       },
+    );
+  }
+}
+
+class BottomBar extends StatefulWidget {
+  const BottomBar({
+    super.key,
+  });
+
+  @override
+  State<BottomBar> createState() => _BottomBarState();
+}
+
+class _BottomBarState extends State<BottomBar> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity, // 将宽度设置为无限大
+      height: 30, // 将高度设置为无限大
+      color: Theme.of(context).primaryColor,
+      child: Text(
+        'Hello World',
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      ),
     );
   }
 }

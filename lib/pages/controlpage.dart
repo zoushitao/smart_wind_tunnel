@@ -12,44 +12,45 @@ class _ControlPageState extends State<ControlPage> {
   Widget build(BuildContext context) {
     return Row(
       children: [
+        Expanded(flex: 1, child: Container()),
         Expanded(
-          flex: 1,
-          child: Container(),
-        ),
-        Expanded(
-          flex: 18,
+          flex: 10,
           child: Padding(
-              padding: EdgeInsets.all(40.0),
+              padding: EdgeInsets.all(15.0),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15),
-                child: ModeSettings(),
+                child: ModeSettingsWidget(),
               )),
         ),
-        Expanded(
-          flex: 1,
-          child: Container(),
-        ),
+        Expanded(flex: 1, child: Container())
       ],
     );
   }
 }
 
 //main content
-class ModeSettings extends StatefulWidget {
-  const ModeSettings({super.key});
+class ModeSettingsWidget extends StatefulWidget {
+  const ModeSettingsWidget({super.key});
 
   @override
-  State<ModeSettings> createState() => _ModeSettingsState();
+  State<ModeSettingsWidget> createState() => _ModeSettingsWidgetState();
 }
 
-class _ModeSettingsState extends State<ModeSettings> {
+class _ModeSettingsWidgetState extends State<ModeSettingsWidget> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 4, // 选项卡的数量
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Run your fans at modes'),
+          title: const Text('Save'),
+          centerTitle: false,
+          leading: IconButton(
+            icon: Icon(Icons.save),
+            onPressed: () {
+              // 处理返回按钮点击事件
+            },
+          ),
           bottom: const TabBar(
             tabs: [
               Tab(
@@ -107,8 +108,7 @@ class _EvenModeViewState extends State<EvenModeView> {
   double _evenSliderValue = 0.0;
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
+    return ListView(
       children: <Widget>[
         const SizedBox(height: 10),
         const ListTile(
@@ -154,8 +154,7 @@ class _GustModeViewState extends State<GustModeView> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
+    return ListView(
       children: <Widget>[
         const SizedBox(height: 10),
         const ListTile(
