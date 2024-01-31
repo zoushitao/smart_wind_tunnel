@@ -18,12 +18,12 @@ class _ControlPageState extends State<ControlPage> {
           child: ListView(
             children: [
               SizedBox(
-                height: 400,
+                height: 600,
                 child: Padding(
-                    padding: EdgeInsets.all(15.0),
+                    padding: const EdgeInsets.all(15.0),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(15),
-                      child: ModeSettingsWidget(),
+                      child: const ModeSettingsWidget(),
                     )),
               ),
             ],

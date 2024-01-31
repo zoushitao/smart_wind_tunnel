@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false, //禁用debug横幅
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.pinkAccent),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         useMaterial3: true,
       ),
       home: const MainApp(),
@@ -36,7 +36,7 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   int selectedIndex = 0;
-  var _widgetList = <Widget>[HomePage(), ViewPage(), ControlPage()];
+  final _widgetList = <Widget>[HomePage(), ViewPage(), ControlPage()];
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
