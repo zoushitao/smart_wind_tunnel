@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -34,10 +36,50 @@ class _HomePageState extends State<HomePage> {
               ),
               SizedBox(height: 10),
               SizedBox(height: 300, child: SerialConnection()),
+              SizedBox(height: 25),
+              SerialConnectionButton()
             ],
           ),
         ),
         Expanded(flex: 2, child: Container())
+      ],
+    );
+  }
+}
+
+class SerialConnectionButton extends StatelessWidget {
+  const SerialConnectionButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final arduinoModel = Provider.of<SmartWindProvider>(context);
+    return Row(
+      children: [
+        Row(
+          children: [
+            ElevatedButton.icon(
+              icon: const Icon(Icons.refresh, size: 20),
+              label: const Text("Refresh "),
+              onPressed: () {
+                arduinoModel.refreshSerialList();
+              },
+            ),
+            const SizedBox(width: 25),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.connecting_airports, size: 20),
+              label: const Text("Connect "),
+              onPressed: () {},
+            ),
+          ],
+        ),
+        const Expanded(child: SizedBox()),
+        ElevatedButton.icon(
+          icon: const Icon(Icons.list, size: 20),
+          label: const Text("Details"),
+          onPressed: () {},
+        ),
       ],
     );
   }
@@ -126,44 +168,54 @@ class SerialConnection extends StatefulWidget {
 
 class _SerialConnectionState extends State<SerialConnection> {
   //Serial Port String
-  late List<String> serialPortList;
+  late List<String> _serialPortList;
+  final List<String> _baudRateList = <String>['115200', '9600'];
 
-  late String _dropdownValue;
+  late String _rightSelectedDevice;
+  late String _rightSelectedBaudRate;
+  late String _leftSelectedDevice;
+  late String _leftSelectedBaudRate;
+
   //States
-  String _rightSelectedPort = '';
-  String _leftSelectedPort = '';
-  String _selectedOption = '';
+
   //
   @override
   Widget build(BuildContext context) {
     final arduinoModel = Provider.of<SmartWindProvider>(context);
     //一些初始化操作
-    serialPortList = ["ok", "next"];
-    _dropdownValue = serialPortList.first;
-    return Container(
-        child: Row(
+    _serialPortList = arduinoModel.availablePorts;
+    _rightSelectedDevice = _serialPortList.first;
+
+    return Row(
       children: [
         Expanded(flex: 20, child: LeftSerialPort()),
         const SizedBox(width: 20),
         Expanded(flex: 20, child: RightSerialPort()),
       ],
-    ));
+    );
   }
 
+  // ignore: non_constant_identifier_names
   Container RightSerialPort() {
     return Container(
       decoration: BoxDecoration(
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF2ECC71), Color.fromARGB(255, 20, 122, 63)],
+            colors: [
+              Color.fromARGB(255, 89, 206, 137),
+              Color.fromARGB(255, 2, 70, 30)
+            ],
           ),
           borderRadius: BorderRadius.circular(16)),
       child: Center(
         child: Column(
           children: [
             const ListTile(
-              leading: Icon(Icons.usb_sharp),
+              leading: Icon(
+                Icons.usb,
+                color: Colors.white,
+              ),
               title: Text(
                 'Right Arduino Device:',
                 textAlign: TextAlign.left,
@@ -171,8 +223,9 @@ class _SerialConnectionState extends State<SerialConnection> {
                     TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
               ),
               subtitle: Text(
-                  'Select a device name from the list and set the baud rate.'),
-              trailing: Icon(Icons.arrow_forward),
+                  'Select a device name from the list and set the baud rate.',
+                  style: TextStyle(
+                      fontWeight: FontWeight.normal, color: Colors.white)),
               onTap: null,
             ),
             const Text(
@@ -180,18 +233,42 @@ class _SerialConnectionState extends State<SerialConnection> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(
-              width: 10,
+              height: 10,
             ),
             DropdownMenu<String>(
-              initialSelection: serialPortList.first,
+              initialSelection: _serialPortList.first,
               onSelected: (String? value) {
                 // This is called when the user selects an item.
                 setState(() {
-                  _dropdownValue = value!;
+                  _rightSelectedDevice = value!;
+                });
+              },
+              dropdownMenuEntries: _serialPortList
+                  .map<DropdownMenuEntry<String>>((String value) {
+                return DropdownMenuEntry<String>(value: value, label: value);
+              }).toList(),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            const Text(
+              'Baud Rate:',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            //Baud Rate Selection
+            DropdownMenu<String>(
+              initialSelection: _serialPortList.first,
+              onSelected: (String? value) {
+                // This is called when the user selects an item.
+                setState(() {
+                  _rightSelectedBaudRate = value!;
                 });
               },
               dropdownMenuEntries:
-                  serialPortList.map<DropdownMenuEntry<String>>((String value) {
+                  _baudRateList.map<DropdownMenuEntry<String>>((String value) {
                 return DropdownMenuEntry<String>(value: value, label: value);
               }).toList(),
             )
@@ -204,19 +281,96 @@ class _SerialConnectionState extends State<SerialConnection> {
   Container LeftSerialPort() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Center(
-        child: Text(
-          'Rounded Rectangle',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color.fromARGB(255, 2, 70, 30),
+              Color.fromARGB(255, 89, 206, 137),
+            ],
           ),
+          borderRadius: BorderRadius.circular(16)),
+      child: Center(
+        child: Column(
+          children: [
+            const ListTile(
+              leading: Icon(
+                Icons.usb,
+                color: Colors.white,
+              ),
+              title: Text(
+                'Left Arduino Device:',
+                textAlign: TextAlign.left,
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              subtitle: Text(
+                  'Select a device name from the list and set the baud rate.',
+                  style: TextStyle(
+                      fontWeight: FontWeight.normal, color: Colors.white)),
+              onTap: null,
+            ),
+            const Text(
+              'Device:',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            DropdownMenu<String>(
+              initialSelection: _serialPortList.first,
+              onSelected: (String? value) {
+                // This is called when the user selects an item.
+                setState(() {
+                  _leftSelectedDevice = value!;
+                });
+              },
+              dropdownMenuEntries: _serialPortList
+                  .map<DropdownMenuEntry<String>>((String value) {
+                return DropdownMenuEntry<String>(value: value, label: value);
+              }).toList(),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            const Text(
+              'Baud Rate:',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            //Baud Rate Selection
+            DropdownMenu<String>(
+              initialSelection: _serialPortList.first,
+              onSelected: (String? value) {
+                // This is called when the user selects an item.
+                setState(() {
+                  _leftSelectedBaudRate = value!;
+                });
+              },
+              dropdownMenuEntries:
+                  _baudRateList.map<DropdownMenuEntry<String>>((String value) {
+                return DropdownMenuEntry<String>(value: value, label: value);
+              }).toList(),
+            )
+          ],
         ),
       ),
     );
+  }
+}
+
+class AllSerialDevices extends StatefulWidget {
+  const AllSerialDevices({Key? key}) : super(key: key);
+
+  @override
+  _AllSerialDevicesState createState() => _AllSerialDevicesState();
+}
+
+class _AllSerialDevicesState extends State<AllSerialDevices> {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }

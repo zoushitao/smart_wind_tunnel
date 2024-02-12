@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
-
-
+import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'dart:async';
 import 'dart:isolate';
 
@@ -35,8 +34,13 @@ class SmartWindProvider extends ChangeNotifier {
 
   SmartWindProvider() {
     // 初始化函数
-    _availablePorts = ["b", "cn", "jp"];
+    refreshSerialList();
     print(_availablePorts);
+    notifyListeners();
+  }
+
+  void refreshSerialList() async {
+    _availablePorts = SerialPort.availablePorts;
     notifyListeners();
   }
 

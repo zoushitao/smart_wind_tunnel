@@ -8,12 +8,11 @@ class ViewPage extends StatefulWidget {
 }
 
 class _ViewPageState extends State<ViewPage> {
-  
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(flex: 2, child: Container()),
+        Expanded(flex: 1, child: Container()),
         Expanded(
           flex: 10,
           child: ListView(
@@ -39,7 +38,7 @@ class _ViewPageState extends State<ViewPage> {
             ],
           ),
         ),
-        Expanded(flex: 2, child: Container())
+        Expanded(flex: 1, child: Container())
       ],
     );
   }
@@ -68,15 +67,7 @@ class _MonitorWidgetState extends State<MonitorWidget> {
   @override
   Widget build(BuildContext context) {
     _contructCells();
-    return Scaffold(
-        appBar: AppBar(
-          title: Row(children: [Icon(Icons.watch), Text("Watch")]),
-          centerTitle: true,
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: _generateGridView(),
-        ));
+    return _generateGridView();
   }
 
   GridView _generateGridView() {
