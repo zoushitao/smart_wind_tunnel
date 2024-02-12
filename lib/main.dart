@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+//import providers
+import 'providers/arduino_provider.dart';
 //import pages
 import './pages/homepage.dart';
 import 'pages/monitorpage.dart';
 import 'pages/controlpage.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<SmartWindProvider>(
+          create: (context) => SmartWindProvider(),
+        ),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -19,7 +31,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false, //禁用debug横幅
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
+        colorSchemeSeed: Colors.blueAccent,
+        brightness: Brightness.light,
         useMaterial3: true,
       ),
       home: const MainApp(),
@@ -43,13 +56,7 @@ class _MainAppState extends State<MainApp> {
       return Scaffold(
         appBar: appBar(context),
         bottomNavigationBar: BottomBar(),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // 在这里添加你的按钮点击事件处理
-          },
-          child: Icon(Icons.pause),
-          backgroundColor: Colors.green,
-        ),
+        floatingActionButton: MainFloatingButton(),
         body: Row(
           children: [
             SafeArea(child: NavigationBar(constraints)),
@@ -60,7 +67,7 @@ class _MainAppState extends State<MainApp> {
             ),
             Expanded(
               child: Container(
-                color: Theme.of(context).colorScheme.primaryContainer,
+                color: const Color.fromARGB(255, 233, 232, 232),
                 child: _widgetList[selectedIndex],
               ),
             ),
@@ -72,7 +79,16 @@ class _MainAppState extends State<MainApp> {
 
   AppBar appBar(BuildContext context) {
     return AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
+        //backgroundColor: Theme.of(context).primaryColor,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(colors: [
+            Color(0xFF846AFF),
+            Color(0xFF755EE8),
+            Colors.purpleAccent,
+            Colors.amber,
+          ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
+        ),
         title: const Text('Smart Wind',
             style: TextStyle(
               color: Colors.white, // 设置文本颜色为蓝色
@@ -159,6 +175,24 @@ class _MainAppState extends State<MainApp> {
   }
 }
 
+class MainFloatingButton extends StatelessWidget {
+  const MainFloatingButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () {
+        // 在这里添加你的按钮点击事件处理
+        Provider.of<SmartWindProvider>(context, listen: false).startIsolate();
+      },
+      child: Icon(Icons.pause),
+      backgroundColor: Colors.green,
+    );
+  }
+}
+
 class BottomBar extends StatefulWidget {
   const BottomBar({
     super.key,
@@ -174,7 +208,7 @@ class _BottomBarState extends State<BottomBar> {
     return Container(
       width: double.infinity, // 将宽度设置为无限大
       height: 30, //将高度设置
-      color: Theme.of(context).primaryColor,
+      color: Colors.black, //颜色用来展示状态
       child: const Row(
         children: [
           Expanded(

@@ -8,6 +8,7 @@ class ViewPage extends StatefulWidget {
 }
 
 class _ViewPageState extends State<ViewPage> {
+  
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -69,7 +70,8 @@ class _MonitorWidgetState extends State<MonitorWidget> {
     _contructCells();
     return Scaffold(
         appBar: AppBar(
-          title: Row(children: [Icon(Icons.sunny), Text("Watch")]),
+          title: Row(children: [Icon(Icons.watch), Text("Watch")]),
+          centerTitle: true,
         ),
         body: Padding(
           padding: const EdgeInsets.all(10.0),

@@ -16,7 +16,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  reflection_effect: ^1.0.0
+  provider: ^5.0.0
+  
+  
+  
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -30,6 +33,13 @@ dev_dependencies:
   flutter_lints: ^3.0.0
 
 flutter:
+  assets :
+   - assets/images/arduino.png
+   - assets/images/green_background.jpg
+   - assets/images/purple_backgounrd.jpg
+   - assets/images/blue_background.jpg
+
+ 
 
 
   uses-material-design: true
