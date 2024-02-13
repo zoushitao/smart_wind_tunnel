@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               SizedBox(height: 10),
-              SizedBox(height: 300, child: SerialConnection()),
+              SizedBox(height: 300, child: SerialCard()),
               SizedBox(height: 25),
               SerialConnectionButton(),
               Divider(
@@ -81,7 +81,9 @@ class SerialConnectionButton extends StatelessWidget {
             ElevatedButton.icon(
               icon: const Icon(Icons.connecting_airports, size: 20),
               label: const Text("Connect "),
-              onPressed: () {},
+              onPressed: () {
+                arduinoModel.connect();
+              },
             ),
           ],
         ),
@@ -170,32 +172,36 @@ class WelcomeCard extends StatelessWidget {
   }
 }
 
-class SerialConnection extends StatefulWidget {
-  const SerialConnection({Key? key}) : super(key: key);
+class SerialCard extends StatefulWidget {
+  const SerialCard({Key? key}) : super(key: key);
 
   @override
-  _SerialConnectionState createState() => _SerialConnectionState();
+  _SerialCardState createState() => _SerialCardState();
 }
 
-class _SerialConnectionState extends State<SerialConnection> {
+class _SerialCardState extends State<SerialCard> {
   //Serial Port String
   late List<String> _serialPortList;
   final List<String> _baudRateList = <String>['115200', '9600'];
 
-  late String _rightSelectedDevice;
-  late String _rightSelectedBaudRate;
-  late String _leftSelectedDevice;
-  late String _leftSelectedBaudRate;
+  String _rightSelectedDevice = '';
+  String _rightSelectedBaudRate = '';
+  String _leftSelectedDevice = '';
+  String _leftSelectedBaudRate = '';
 
   //States
+  late SmartWindProvider _arduinoModel;
 
   //
   @override
   Widget build(BuildContext context) {
-    final arduinoModel = Provider.of<SmartWindProvider>(context);
+    _arduinoModel = Provider.of<SmartWindProvider>(context);
+    _arduinoModel.setLeftSerialPort(_leftSelectedDevice);
+    _arduinoModel.setRightSerialPort(_rightSelectedDevice);
     //一些初始化操作
-    _serialPortList = arduinoModel.availablePorts;
+    _serialPortList = _arduinoModel.availablePorts;
     _rightSelectedDevice = _serialPortList.first;
+    _leftSelectedDevice = _serialPortList.first;
 
     return Row(
       children: [

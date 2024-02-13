@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'dart:async';
 import 'dart:isolate';
+
+//import arduino hardware serial port interface
+import 'real_arduino_interface.dart';
 
 enum SmartWindStatus { paused, running }
 
@@ -29,6 +31,9 @@ class SmartWindProvider extends ChangeNotifier {
   SmartWindPredefinedMode get currentPredefinedMode =>
       _virtualArduino.currentPredefinedMode;
 
+  //arduino硬件管理
+  RealArduinoInterface _realArduino = RealArduinoInterface();
+
   //Connection
   bool _isConnected = false;
   bool get isConnected => _isConnected;
@@ -36,11 +41,20 @@ class SmartWindProvider extends ChangeNotifier {
   //serialport
   late List<String> _availablePorts = [];
   List<String> get availablePorts => _availablePorts;
-  
+  //记得稍后修改
+  String? _leftPort, _rightPort;
 
   int _counter = 0;
 
   int get counter => _counter;
+
+  void setLeftSerialPort(String portName) {
+    _leftPort = portName;
+  }
+
+  void setRightSerialPort(String portName) {
+    _rightPort = portName;
+  }
 
   void testSt() {
     _counter++;
@@ -53,19 +67,28 @@ class SmartWindProvider extends ChangeNotifier {
 
   SmartWindProvider() {
     // 初始化函数
+
     refreshSerialList();
     print(_availablePorts);
     notifyListeners();
   }
 
   void refreshSerialList() async {
-    _availablePorts = SerialPort.availablePorts;
+    try {
+      //fake list here
+      _availablePorts = ["name", "test", "ok"];
+    } catch (err) {
+      print('串口错误：$err');
+    }
+
     notifyListeners();
   }
 
   //打开串口链接Arduino
-  void connectSerial(){
-    
+  void connect() {
+    _realArduino.echoTest(leftDevice: _leftPort!, rightDevice: _rightPort!);
+    _isConnected = true;
+    notifyListeners();
   }
 
   Future<void> startIsolate() async {
