@@ -1,10 +1,11 @@
 // ignore_for_file: unused_field
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
+import 'dart:ui';
 //import providers
 import '/providers/arduino_provider.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -37,7 +38,17 @@ class _HomePageState extends State<HomePage> {
               SizedBox(height: 10),
               SizedBox(height: 300, child: SerialConnection()),
               SizedBox(height: 25),
-              SerialConnectionButton()
+              SerialConnectionButton(),
+              Divider(
+                color: Colors.grey,
+                height: 20,
+                thickness: 1,
+                indent: 20,
+                endIndent: 0,
+              ),
+              SizedBox(height: 25),
+              TipsWidget(),
+              SizedBox(height: 45),
             ],
           ),
         ),
@@ -372,5 +383,44 @@ class _AllSerialDevicesState extends State<AllSerialDevices> {
   @override
   Widget build(BuildContext context) {
     return Container();
+  }
+}
+
+class TipsWidget extends StatelessWidget {
+  const TipsWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          image: const DecorationImage(
+            image: AssetImage('assets/images/purple_backgounrd.jpg'),
+            fit: BoxFit.cover,
+          ),
+          borderRadius: BorderRadius.circular(16)),
+      child: const Column(
+        children: [
+          ListTile(
+            leading: Icon(
+              Icons.lightbulb,
+              color: Colors.white,
+            ),
+            title: Text(
+              'Right Arduino Device:',
+              textAlign: TextAlign.left,
+              style:
+                  TextStyle(fontWeight: FontWeight.normal, color: Colors.white),
+            ),
+            subtitle: Text(
+                'Select a device name from the list and set the baud rate.',
+                style: TextStyle(
+                    fontWeight: FontWeight.normal, color: Colors.white)),
+            onTap: null,
+          ),
+        ],
+      ),
+    );
   }
 }
