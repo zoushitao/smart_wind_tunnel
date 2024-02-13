@@ -82,7 +82,7 @@ class SmartWindProvider extends ChangeNotifier {
   void refreshSerialList() async {
     try {
       //fake list here
-      _availablePorts = ["name", "test", "ok"];
+      _availablePorts = _realArduino.availablePorts;
     } catch (err) {
       print('串口错误：$err');
     }
@@ -100,6 +100,12 @@ class SmartWindProvider extends ChangeNotifier {
     }
     _realArduino.echoTest(leftDevice: _leftPort!, rightDevice: _rightPort!);
     _isConnected = true;
+    notifyListeners();
+  }
+
+  void disconnect() {
+    // .....
+    _isConnected = false;
     notifyListeners();
   }
 

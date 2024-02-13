@@ -209,17 +209,29 @@ class _BottomBarState extends State<BottomBar> {
       width: double.infinity, // 将宽度设置为无限大
       height: 30, //将高度设置
       color: Colors.black, //颜色用来展示状态
-      child: const Row(
+      child: Row(
         children: [
           Expanded(
+              flex: 2,
+              child: IconButton(
+                icon: Icon(Icons.add),
+                onPressed: () {
+                  // 按钮点击事件
+                  // 在这里执行您想要的操作
+                },
+              )),
+          Expanded(
             flex: 2,
-            child: Text(
-              'Hello World',
-              style: TextStyle(
-                color: Colors.white,
+            child: Center(
+              child: Text(
+                'Hello World',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
+          Expanded(flex: 2, child: SizedBox()),
         ],
       ),
     );

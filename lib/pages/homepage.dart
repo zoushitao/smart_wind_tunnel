@@ -78,13 +78,9 @@ class SerialConnectionButton extends StatelessWidget {
               },
             ),
             const SizedBox(width: 25),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.connecting_airports, size: 20),
-              label: const Text("Connect "),
-              onPressed: () {
-                arduinoModel.connect();
-              },
-            ),
+            arduinoModel.isConnected
+                ? disconnectButton(arduinoModel)
+                : connectButton(arduinoModel),
           ],
         ),
         const Expanded(child: SizedBox()),
@@ -94,6 +90,26 @@ class SerialConnectionButton extends StatelessWidget {
           onPressed: () {},
         ),
       ],
+    );
+  }
+
+  ElevatedButton connectButton(SmartWindProvider arduinoModel) {
+    return ElevatedButton.icon(
+      icon: const Icon(Icons.connecting_airports, size: 20),
+      label: const Text("Connect "),
+      onPressed: () {
+        arduinoModel.connect();
+      },
+    );
+  }
+
+  ElevatedButton disconnectButton(SmartWindProvider arduinoModel) {
+    return ElevatedButton.icon(
+      icon: const Icon(Icons.cancel, size: 20),
+      label: const Text("Disonnect "),
+      onPressed: () {
+        arduinoModel.disconnect();
+      },
     );
   }
 }
@@ -291,7 +307,7 @@ class _SerialCardState extends State<SerialCard> {
             ListTile(
               leading: Icon(Icons.factory),
               title: const Text(
-                "Manufacture",
+                "Manufacturer",
                 textAlign: TextAlign.left,
                 style:
                     TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
@@ -378,7 +394,7 @@ class _SerialCardState extends State<SerialCard> {
             ListTile(
               leading: Icon(Icons.factory),
               title: const Text(
-                "Manufacture",
+                "Manufacturer",
                 textAlign: TextAlign.left,
                 style:
                     TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
@@ -399,11 +415,11 @@ class _SerialCardState extends State<SerialCard> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('提示'),
+          title: Text('Information about :$portName'),
           content: Text(info.toString()),
           actions: <Widget>[
             ElevatedButton(
-              child: const Text('取消'),
+              child: const Text('I see'),
               onPressed: () {
                 Navigator.of(context).pop(); // 关闭对话框
               },
