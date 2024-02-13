@@ -4,6 +4,24 @@ import 'dart:typed_data';
 
 class RealArduinoInterface {
   late SerialPort _leftPort;
+  //acquire serial port lists
+  List<String> get availablePorts => SerialPort.availablePorts;
+  //acquire detail of usb device
+  Map acquireDeviceDetail(String portName) {
+    final SerialPort port = SerialPort(portName);
+    return {
+      'Description': port.description,
+      'Transport': port.transport,
+      'USB Bus': port.busNumber,
+      'USB Device': port.deviceNumber,
+      'Vendor ID': port.vendorId,
+      'Product ID': port.productId,
+      'Manufacturer': port.manufacturer,
+      'Product Name': port.productName,
+      'Serial Number': port.serialNumber,
+      'MAC Address': port.macAddress
+    };
+  }
 
   Future<void> echoTest(
       {required String leftDevice, required String rightDevice}) async {

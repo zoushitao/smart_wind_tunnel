@@ -50,10 +50,16 @@ class SmartWindProvider extends ChangeNotifier {
 
   void setLeftSerialPort(String portName) {
     _leftPort = portName;
+    print("_leftPort:$_leftPort");
   }
 
   void setRightSerialPort(String portName) {
     _rightPort = portName;
+    print("_rightPort:$_rightPort");
+  }
+
+  Map acquireDeviceDetail(String portName) {
+    return _realArduino.acquireDeviceDetail(portName);
   }
 
   void testSt() {
@@ -86,6 +92,12 @@ class SmartWindProvider extends ChangeNotifier {
 
   //打开串口链接Arduino
   void connect() {
+    if (_leftPort == null || _rightPort == null) {
+      print("null");
+      print("_leftPort:$_leftPort");
+      print("_rightPort:$_rightPort");
+      return;
+    }
     _realArduino.echoTest(leftDevice: _leftPort!, rightDevice: _rightPort!);
     _isConnected = true;
     notifyListeners();

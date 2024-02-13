@@ -53,7 +53,7 @@ class _ViewPageState extends State<ViewPage> {
         // ignore: prefer_const_constructors
         Expanded(
           flex: 4,
-          child: Padding(
+          child: const Padding(
               padding: EdgeInsets.fromLTRB(80, 20, 80, 0),
               child: MonitorWidget()),
         ),
@@ -114,6 +114,12 @@ class ArduinoStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final arduinoModel = Provider.of<SmartWindProvider>(context);
+
+    //render connection success interface
+    ListTile connectionStatus = arduinoModel.isConnected
+        ? connectionSuccessListTile()
+        : connectionFailListTile();
+
     return Container(
       decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -143,7 +149,7 @@ class ArduinoStatusCard extends StatelessWidget {
                     fontWeight: FontWeight.normal, color: Colors.black)),
             onTap: null,
           ),
-          connectionSuccessListTile(),
+          connectionStatus,
         ],
       ),
     );
