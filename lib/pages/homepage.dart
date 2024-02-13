@@ -220,6 +220,9 @@ class _SerialCardState extends State<SerialCard> {
 
   // ignore: non_constant_identifier_names
   Container RightSerialPort(BuildContext context) {
+    String? manufacturer =
+        _arduinoModel.acquireDeviceDetail(_rightSelectedDevice)["Manufacturer"];
+    manufacturer ??= "Null";
     return Container(
       decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -244,7 +247,7 @@ class _SerialCardState extends State<SerialCard> {
                     // 按钮点击事件
                     _showDialog(context, _rightSelectedDevice);
                   },
-                  icon: const Icon(Icons.details)),
+                  icon: const Icon(Icons.info)),
               title: const Text(
                 'Right Arduino Device:',
                 textAlign: TextAlign.left,
@@ -285,6 +288,18 @@ class _SerialCardState extends State<SerialCard> {
             const SizedBox(
               height: 20,
             ),
+            ListTile(
+              leading: Icon(Icons.factory),
+              title: const Text(
+                "Manufacture",
+                textAlign: TextAlign.left,
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              ),
+              subtitle: Text(manufacturer,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.normal, color: Colors.black)),
+            )
           ],
         ),
       ),
@@ -292,6 +307,9 @@ class _SerialCardState extends State<SerialCard> {
   }
 
   Container LeftSerialPort(BuildContext context) {
+    String? manufacturer =
+        _arduinoModel.acquireDeviceDetail(_leftSelectedDevice)["Manufacturer"];
+    manufacturer ??= "Null";
     return Container(
       decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -314,9 +332,9 @@ class _SerialCardState extends State<SerialCard> {
               trailing: IconButton(
                   onPressed: () {
                     // 按钮点击事件
-                    _showDialog(context, _rightSelectedDevice);
+                    _showDialog(context, _leftSelectedDevice);
                   },
-                  icon: const Icon(Icons.details)),
+                  icon: const Icon(Icons.info)),
               title: const Text(
                 'Left Arduino Device:',
                 textAlign: TextAlign.left,
@@ -345,7 +363,7 @@ class _SerialCardState extends State<SerialCard> {
                 // This is called when the user selects an item.
                 setState(() {
                   if (value != null) {
-                    _rightSelectedDevice = value!;
+                    _leftSelectedDevice = value!;
                   }
                 });
               },
@@ -354,6 +372,21 @@ class _SerialCardState extends State<SerialCard> {
                 return DropdownMenuEntry<String>(value: value, label: value);
               }).toList(),
             ),
+            const SizedBox(
+              height: 20,
+            ),
+            ListTile(
+              leading: Icon(Icons.factory),
+              title: const Text(
+                "Manufacture",
+                textAlign: TextAlign.left,
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              ),
+              subtitle: Text(manufacturer,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.normal, color: Colors.black)),
+            )
           ],
         ),
       ),
