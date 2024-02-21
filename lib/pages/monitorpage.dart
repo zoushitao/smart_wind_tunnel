@@ -40,6 +40,13 @@ class _ViewPageState extends State<ViewPage> {
                 height: 400,
                 child: ControlPad(),
               ),
+              SizedBox(
+                height: 20,
+              ),
+              SizedBox(
+                height: 400,
+                child: MonitorAppearance(),
+              ),
             ]),
           ),
         ),
@@ -70,21 +77,113 @@ class MonitorWidget extends StatefulWidget {
 }
 
 class _MonitorWidgetState extends State<MonitorWidget> {
-  List<Widget> _cells = [];
-  void _contructCells() {
-    for (int i = 0; i < 1600; i++) {
-      _cells.add(const DecoratedBox(
-        decoration: BoxDecoration(
-          color: Colors.blue,
-        ),
-        child: null,
-      ));
+  final Color baseColor = Colors.blue;
+  final List<Color> blueColors = [
+    Colors.blue.shade50,
+    Colors.blue.shade100,
+    Colors.blue.shade200,
+    Colors.blue.shade300,
+    Colors.blue.shade400,
+    Colors.blue.shade500,
+    Colors.blue.shade600,
+    Colors.blue.shade700,
+    Colors.blue.shade800,
+    Colors.blue.shade900
+  ];
+
+  final List<Color> greenColors = [
+    Colors.green.shade50,
+    Colors.green.shade100,
+    Colors.green.shade200,
+    Colors.green.shade300,
+    Colors.green.shade400,
+    Colors.green.shade500,
+    Colors.green.shade600,
+    Colors.green.shade700,
+    Colors.green.shade800,
+    Colors.green.shade900,
+  ];
+
+  final List<Color> yellowColors = [
+    Colors.yellow.shade50,
+    Colors.yellow.shade100,
+    Colors.yellow.shade200,
+    Colors.yellow.shade300,
+    Colors.yellow.shade400,
+    Colors.yellow.shade500,
+    Colors.yellow.shade600,
+    Colors.yellow.shade700,
+    Colors.yellow.shade800,
+    Colors.yellow.shade900,
+  ];
+
+  final List<Color> purpleColors = [
+    Colors.purple.shade50,
+    Colors.purple.shade100,
+    Colors.purple.shade200,
+    Colors.purple.shade300,
+    Colors.purple.shade400,
+    Colors.purple.shade500,
+    Colors.purple.shade600,
+    Colors.purple.shade700,
+    Colors.purple.shade800,
+    Colors.purple.shade900,
+  ];
+
+  final List<Color> redColors = [
+    Colors.red.shade50,
+    Colors.red.shade100,
+    Colors.red.shade200,
+    Colors.red.shade300,
+    Colors.red.shade400,
+    Colors.red.shade500,
+    Colors.red.shade600,
+    Colors.red.shade700,
+    Colors.red.shade800,
+    Colors.red.shade900,
+  ];
+
+  Color pwmToColor(List<Color> baseColor, int val) {
+    if (val < 0 || val >= 4095) {
+      return Colors.white;
+    } else {
+      var temp = val.toDouble() / 4095.0 * baseColor.length;
+      val = temp.toInt();
+      try {
+        return baseColor[val];
+      } catch (err) {
+        return baseColor.last;
+      }
+    }
+  }
+
+  final List<Color> blueGradient = [Colors.blue[100]!, Colors.pink[100]!];
+  final List<Widget> _cells = [];
+
+  void _contructCells(BuildContext context) {
+    //Construc cells according to provider
+    final arduinoModel = Provider.of<SmartWindProvider>(context);
+    var matrix = arduinoModel.virtualArduino.matrix;
+    // 获取矩阵的行数和列数
+    int numRows = matrix.length;
+    int numCols = matrix[0].length;
+    // 迭代遍历矩阵
+    for (int i = 0; i < numRows; i++) {
+      for (int j = 0; j < numCols; j++) {
+        Color cellColor = pwmToColor(blueColors, matrix[i][j]);
+        _cells.add(DecoratedBox(
+          decoration: BoxDecoration(
+            color: cellColor,
+          ),
+          child: null,
+        ));
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    _contructCells();
+    _contructCells(context);
     return _generateGridView();
   }
 
@@ -226,8 +325,8 @@ class _ControlPadState extends State<ControlPad> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color.fromARGB(255, 224, 222, 225),
-              Color.fromARGB(255, 192, 166, 192)
+              Color.fromARGB(255, 221, 220, 220),
+              Color.fromARGB(255, 179, 178, 178)
             ],
           ),
           borderRadius: BorderRadius.circular(16)),
@@ -235,7 +334,7 @@ class _ControlPadState extends State<ControlPad> {
         children: [
           const ListTile(
             leading: Icon(
-              Icons.padding,
+              Icons.gif_box_sharp,
               color: Colors.black,
             ),
             title: Text(
@@ -361,6 +460,52 @@ class _PredefinedModeSelectionState extends State<PredefinedModeSelection> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class MonitorAppearance extends StatefulWidget {
+  const MonitorAppearance({Key? key}) : super(key: key);
+
+  @override
+  _MonitorAppearanceState createState() => _MonitorAppearanceState();
+}
+
+class _MonitorAppearanceState extends State<MonitorAppearance> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color.fromARGB(255, 221, 220, 220),
+              Color.fromARGB(255, 179, 178, 178)
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16)),
+      child: const Column(
+        children: [
+          ListTile(
+            leading: Icon(
+              Icons.looks,
+              color: Colors.black,
+            ),
+            title: Text(
+              'Appearance Settings',
+              textAlign: TextAlign.left,
+              style:
+                  TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
+            ),
+            subtitle: Text(
+                'change the color and the size of the demonstration in the right',
+                style: TextStyle(
+                    fontWeight: FontWeight.normal, color: Colors.black)),
+            onTap: null,
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'dart:isolate';
+import '../hardware/arduino.dart';
+import 'dart:convert';
 
 //import arduino hardware serial port interface
-import 'real_arduino_interface.dart';
+import '../hardware/real_arduino_interface.dart';
 
 enum SmartWindStatus { paused, running }
 
@@ -13,17 +15,42 @@ enum SmartWindPredefinedMode { even, gust, wave, sheer }
 
 // 用来储存和管理风扇的状态
 class VirtualArduinoState {
-  late List<List<int>> fanSpeedMatrix;
+  late List<List<int>> _matrix;
+  //getter
+  List<List<int>> get matrix => _matrix;
   SmartWindStatus currentStatus = SmartWindStatus.paused;
   late SmartWindRunningPatterns currentPattern =
       SmartWindRunningPatterns.predifined;
   late SmartWindPredefinedMode currentPredefinedMode =
       SmartWindPredefinedMode.even;
+
+  VirtualArduinoState() {
+    int numRows = 40;
+    int numCols = 40;
+
+    _matrix = List.generate(
+      numRows,
+      (row) => List<int>.filled(numCols, 0),
+    );
+  }
+
+  void setAll(int val) {
+    // 获取矩阵的行数和列数
+    int numRows = _matrix.length;
+    int numCols = _matrix[0].length;
+    // 迭代遍历矩阵
+    for (int i = 0; i < numRows; i++) {
+      for (int j = 0; j < numCols; j++) {
+        _matrix[i][j] = val;
+      }
+    }
+  }
 }
 
 class SmartWindProvider extends ChangeNotifier {
   //virtual arduino 用来管理虚拟风扇的数据
-  VirtualArduinoState _virtualArduino = VirtualArduinoState();
+  final VirtualArduinoState _virtualArduino = VirtualArduinoState();
+  VirtualArduinoState get virtualArduino => _virtualArduino;
   //getters 用来获取虚拟风扇的状态
   SmartWindStatus get currentStatus => _virtualArduino.currentStatus;
   SmartWindRunningPatterns get currentPatterns =>
@@ -32,7 +59,7 @@ class SmartWindProvider extends ChangeNotifier {
       _virtualArduino.currentPredefinedMode;
 
   //arduino硬件管理
-  RealArduinoInterface _realArduino = RealArduinoInterface();
+  final RealArduinoInterface _realArduino = RealArduinoInterface();
 
   //Connection
   bool _isConnected = false;
@@ -59,6 +86,7 @@ class SmartWindProvider extends ChangeNotifier {
   }
 
   Map acquireDeviceDetail(String portName) {
+    //稍后修改
     return _realArduino.acquireDeviceDetail(portName);
   }
 
@@ -67,12 +95,10 @@ class SmartWindProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void start() {
-    notifyListeners();
-  }
-
   SmartWindProvider() {
     // 初始化函数
+    _startChildIsolate();
+    print("initializing");
 
     refreshSerialList();
     print(_availablePorts);
@@ -86,19 +112,29 @@ class SmartWindProvider extends ChangeNotifier {
     } catch (err) {
       print('串口错误：$err');
     }
-
     notifyListeners();
   }
 
-  //打开串口链接Arduino
+  //connect to serial port and start isolate
   void connect() {
     if (_leftPort == null || _rightPort == null) {
       print("null");
       print("_leftPort:$_leftPort");
       print("_rightPort:$_rightPort");
       return;
+      //error handling here
     }
-    _realArduino.echoTest(leftDevice: _leftPort!, rightDevice: _rightPort!);
+
+    var instruciton = {
+      'instruction': 'connect',
+      'leftPort': _leftPort,
+      'rightPort': _rightPort
+    };
+    var instructionJsonString = jsonEncode(instruciton);
+
+    _childSendPort.send(instructionJsonString);
+
+    //_realArduino.echoTest(leftDevice: _leftPort!, rightDevice: _rightPort!);
     _isConnected = true;
     notifyListeners();
   }
@@ -109,17 +145,16 @@ class SmartWindProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> startIsolate() async {
-    final isolate = await Isolate.spawn(printMessage, 'Hello from Isolate!');
-    await Future.delayed(Duration(seconds: 10));
-    // 终止 Isolate
-    isolate.kill(priority: Isolate.immediate);
-  }
-}
+  //Isolate
+  late Isolate _childIsolate;
+  late SendPort _childSendPort;
+  late ReceivePort _childReceivePort;
+  Future<void> _startChildIsolate() async {
+    _childReceivePort = ReceivePort();
+    _childIsolate =
+        await Isolate.spawn(childIsolateEntry, _childReceivePort.sendPort);
 
-void printMessage(String message) {
-  // 每隔1秒打印一条消息
-  Timer.periodic(const Duration(milliseconds: 200), (timer) {
-    print(message);
-  });
+    _childSendPort = await _childReceivePort.first; // 获取子 Isolate 的发送端口
+    //_childSendPort.send('Hello from main Isolate!'); // 向子 Isolate 发送消息
+  }
 }

@@ -185,7 +185,7 @@ class MainFloatingButton extends StatelessWidget {
     return FloatingActionButton(
       onPressed: () {
         // 在这里添加你的按钮点击事件处理
-        Provider.of<SmartWindProvider>(context, listen: false).startIsolate();
+       // Provider.of<SmartWindProvider>(context, listen: false).startIsolate();
       },
       child: Icon(Icons.pause),
       backgroundColor: Colors.green,
