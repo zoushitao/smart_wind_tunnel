@@ -205,6 +205,7 @@ class SmartWindProvider extends ChangeNotifier {
 
   void _setAll(Map jsonMap) {
     int val = jsonMap['value'];
+    
     _virtualArduino.setAll(val);
     notifyListeners();
   }

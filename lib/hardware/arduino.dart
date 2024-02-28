@@ -1,4 +1,6 @@
 import 'dart:isolate';
+import 'package:flutter/material.dart';
+
 import 'real_arduino_interface.dart';
 import 'dart:convert';
 //childIsolate main
@@ -20,12 +22,20 @@ Future<void> childIsolateEntry(SendPort sendPort) async {
   _sendPort = sendPort; // 向主 Isolate 发送子 Isolate 的接收端口
   receivePort.listen((message) {
     //Process instructions received
+    print("hellow mesd");
 
-    _handleInstruction(message);
+    try {
+      print(message);
+      _handleInstruction(message);
+    } catch (e) {
+      print(e);
+    }
   });
 
   //Runners
   GustModeRunner gustModeRunner = GustModeRunner();
+  GustModeRunner gustModeRunner2 = GustModeRunner();
+  assert(identical(gustModeRunner, gustModeRunner2));
 
   int i = 0;
   while (true) {
@@ -37,12 +47,16 @@ Future<void> childIsolateEntry(SendPort sendPort) async {
     });
 
     i++;
-
+    print("ok $i:$_currentMode");
     switch (_currentMode) {
       case null:
         continue;
       case 'gust':
-        gustModeRunner.run();
+        try {
+          gustModeRunner.run();
+        } catch (e) {
+          print(e);
+        }
     }
   }
 }
@@ -50,7 +64,7 @@ Future<void> childIsolateEntry(SendPort sendPort) async {
 Future<bool> _loop(int count) async {
   bool clearCount = false;
   await Future.delayed(const Duration(seconds: 1), () {
-    print('Isolate is crazy $count');
+    //print('Isolate is crazy $count');
   });
 
   //loop
@@ -104,18 +118,21 @@ void _disconnect(Map message) {
 
 void _updateConfig(Map message) {
   _config = message['config'];
+  Map? gustConfig = _config?['gust'];
 
   GustModeRunner gustModeRunner = GustModeRunner();
+  print("update config : $gustConfig");
   gustModeRunner.init(
-      upperLimit: _config!['upperLimit'],
-      lowerLimit: _config!['lowerLimit'],
-      periodMs: _config!['period']);
+      upperLimit: gustConfig!['upperLimit'],
+      lowerLimit: gustConfig['lowerLimit'],
+      periodMs: gustConfig['period']);
 
   print("config updated");
   print(_config.toString());
 }
 
 void _launch(Map message) {
+  print("launched");
   String mode = message['mode'];
   _currentMode = mode;
 }
@@ -136,27 +153,44 @@ class GustModeRunner {
 
   GustModeRunner._internal();
 
-  late int increment;
-  late int value;
-  late int lower, upper;
-
-  int delay = 100;
+  int _increment = 500;
+  int value = 0;
+  late int lower = 0, upper = 4095;
+  bool _initialized = false;
+  bool _flip = false;
+  int delay = 20;
   void init(
       {required int lowerLimit,
       required int upperLimit,
       required int periodMs}) {
     int steps = periodMs ~/ delay;
-    increment = (upperLimit - lowerLimit) ~/ steps;
+    _increment = (upperLimit - lowerLimit) ~/ steps;
     value = lowerLimit;
     lower = lowerLimit;
     upper = upperLimit;
+    _initialized = true;
+    print("init gust");
   }
 
   void run() {
-    value += increment;
-    if (value > 4095 || value > upper) {
-      value = upper;
+    print("Run value:$value increment:$_increment init:$_initialized");
+
+    //if (!_initialized) return;
+    if (_flip == false) {
+      value += _increment;
+      if (value > 4095 || value > upper) {
+        value = upper;
+        _flip = !_flip;
+      }
+    } else {
+      value -= _increment;
+      if (value < 0 || value < lower) {
+        value = lower;
+        _flip = !_flip;
+      }
     }
+
     _setAll(value);
+    print("Run value:$value");
   }
 }
