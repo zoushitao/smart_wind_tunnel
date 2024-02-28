@@ -53,22 +53,16 @@ class _ModeSettingsWidgetState extends State<ModeSettingsWidget> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Save'),
-          centerTitle: false,
-          leading: IconButton(
-            icon: Icon(Icons.save),
-            onPressed: () {
-              // 处理返回按钮点击事件
-            },
-          ),
+          centerTitle: true,
           bottom: const TabBar(
             tabs: [
               Tab(
                 text: 'Even Mode',
-                icon: Icon(Icons.tab),
+                icon: Icon(Icons.wind_power),
               ),
               Tab(
                 text: 'Tab 2',
-                icon: Icon(Icons.tab),
+                icon: Icon(Icons.cloud),
               ),
               Tab(
                 text: 'Tab 3',
@@ -84,9 +78,9 @@ class _ModeSettingsWidgetState extends State<ModeSettingsWidget> {
         body: TabBarView(
           children: [
             // 第一个选项卡的内容
-            EvenModeView(),
+            const EvenModeView(),
             // 第二个选项卡的内容
-            GustModeView(),
+            const GustModeView(),
             // 第三个选项卡的内容
             Container(
               child: Center(
@@ -124,7 +118,7 @@ class _EvenModeViewState extends State<EvenModeView> {
   @override
   Widget build(BuildContext context) {
     final arduinoModel = Provider.of<SmartWindProvider>(context);
-    int val = arduinoModel.evenMpde['value'];
+    int val = arduinoModel.evenMode['value'];
 
     _evenSliderValue = val.toDouble();
     return ListView(
@@ -175,9 +169,24 @@ class GustModeView extends StatefulWidget {
 class _GustModeViewState extends State<GustModeView> {
   double _gustUpperValue = 0.0;
   double _gustLowerValue = 0.0;
+  double _gustPeriodValue = 0.0;
 
   @override
   Widget build(BuildContext context) {
+    final arduinoModel = Provider.of<SmartWindProvider>(context);
+    late int lower, upper, period;
+    try {
+      lower = arduinoModel.gustMode['lowerLimit'];
+      upper = arduinoModel.gustMode['upperLimit'];
+      period = arduinoModel.gustMode['period'];
+      //print(arduinoModel.gustMode);
+    } catch (e) {
+      //
+    }
+    _gustUpperValue = upper.toDouble();
+    _gustLowerValue = lower.toDouble();
+    _gustPeriodValue = period.toDouble();
+
     return ListView(
       children: <Widget>[
         const SizedBox(height: 10),
@@ -189,18 +198,22 @@ class _GustModeViewState extends State<GustModeView> {
         Row(
           children: [
             const SizedBox(width: 10),
-            const Text("Value : "),
+            const Text("Upper Limit : "),
             Expanded(
                 child: Slider(
               value: _gustUpperValue,
               min: 0.0,
-              max: 100.0,
-              divisions: 5,
-              label: 'Value: ${_gustUpperValue.toInt()}',
+              max: 4095.0,
+              divisions: 4095,
+              label: 'Upper Limit: ${_gustUpperValue.toInt()}',
               onChanged: (newValue) {
                 setState(() {
                   _gustUpperValue = newValue;
                   //Do something Here
+                  arduinoModel.setGustMode(
+                      lowerLimit: _gustLowerValue.toInt(),
+                      upperLimit: _gustUpperValue.toInt(),
+                      periodMs: _gustPeriodValue.toInt());
                 });
               },
             )),
@@ -210,17 +223,46 @@ class _GustModeViewState extends State<GustModeView> {
         Row(
           children: [
             const SizedBox(width: 10),
-            const Text("Value : "),
+            const Text("Lower Limit :  : "),
             Expanded(
                 child: Slider(
               value: _gustLowerValue,
               min: 0.0,
-              max: 100.0,
-              divisions: 5,
-              label: 'Value: ${_gustLowerValue.toInt()}',
+              max: 4095.0,
+              divisions: 4095,
+              label: 'Lower Limit: ${_gustLowerValue.toInt()}',
               onChanged: (newValue) {
                 setState(() {
                   _gustLowerValue = newValue;
+                  //Do something Here
+                  arduinoModel.setGustMode(
+                      lowerLimit: _gustLowerValue.toInt(),
+                      upperLimit: _gustUpperValue.toInt(),
+                      periodMs: _gustPeriodValue.toInt());
+                });
+              },
+            )),
+            const SizedBox(height: 20),
+          ],
+        ),
+        Row(
+          children: [
+            const SizedBox(width: 10),
+            const Text("Period : "),
+            Expanded(
+                child: Slider(
+              value: _gustPeriodValue,
+              min: 0.0,
+              max: 100.0,
+              divisions: 100,
+              label: 'Period(ms): ${_gustPeriodValue.toInt()}',
+              onChanged: (newValue) {
+                setState(() {
+                  _gustPeriodValue = newValue;
+                  arduinoModel.setGustMode(
+                      lowerLimit: _gustLowerValue.toInt(),
+                      upperLimit: _gustUpperValue.toInt(),
+                      periodMs: _gustPeriodValue.toInt());
                   //Do something Here
                 });
               },

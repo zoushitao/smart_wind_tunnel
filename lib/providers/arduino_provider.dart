@@ -3,26 +3,15 @@ import 'dart:async';
 import 'dart:isolate';
 import '../hardware/arduino.dart';
 import 'dart:convert';
-
+import 'dart:convert';
 //import arduino hardware serial port interface
 import '../hardware/real_arduino_interface.dart';
-
-enum SmartWindStatus { paused, running }
-
-enum SmartWindRunningPatterns { predifined, demonstration, script }
-
-enum SmartWindPredefinedMode { even, gust, wave, sheer }
 
 // 用来储存和管理风扇的状态
 class VirtualArduinoState {
   late List<List<int>> _matrix;
   //getter
   List<List<int>> get matrix => _matrix;
-  SmartWindStatus currentStatus = SmartWindStatus.paused;
-  late SmartWindRunningPatterns currentPattern =
-      SmartWindRunningPatterns.predifined;
-  late SmartWindPredefinedMode currentPredefinedMode =
-      SmartWindPredefinedMode.even;
 
   VirtualArduinoState() {
     int numRows = 40;
@@ -51,12 +40,6 @@ class SmartWindProvider extends ChangeNotifier {
   //virtual arduino 用来管理虚拟风扇的数据
   final VirtualArduinoState _virtualArduino = VirtualArduinoState();
   VirtualArduinoState get virtualArduino => _virtualArduino;
-  //getters 用来获取虚拟风扇的状态
-  SmartWindStatus get currentStatus => _virtualArduino.currentStatus;
-  SmartWindRunningPatterns get currentPatterns =>
-      _virtualArduino.currentPattern;
-  SmartWindPredefinedMode get currentPredefinedMode =>
-      _virtualArduino.currentPredefinedMode;
 
   //arduino硬件管理
   final RealArduinoInterface _realArduino = RealArduinoInterface();
@@ -65,12 +48,31 @@ class SmartWindProvider extends ChangeNotifier {
   static const MAX_VAL = 4095;
 
   //settings 保存predefined mode的设置
-  final Map evenMpde = {'value': 0};
-  final Map gustMode = {'lowerLimit': 0, 'upperLimit': MAX_VAL, 'period': 10};
+  final Map evenMode = {'value': 0};
+  final Map gustMode = {'lowerLimit': 0, 'upperLimit': MAX_VAL, 'period': 30};
 
   //Connection
   bool _isConnected = false;
   bool get isConnected => _isConnected;
+
+  //Running or paused
+  bool _isRunning = false;
+  bool get isRunning => _isRunning;
+
+  //Mode
+  static const List<String> _patternList = [
+    "Predefined",
+    "Demonstration",
+    "Script"
+  ];
+  static const List<String> _predifinedModeList = [
+    "even",
+    "gust",
+    "sheer",
+    'wave'
+  ];
+  String currentPattern = _patternList[0];
+  String currentPredefinedMode = _predifinedModeList[0];
 
   //serialport
   late List<String> _availablePorts = [];
@@ -140,7 +142,7 @@ class SmartWindProvider extends ChangeNotifier {
       'rightPort': _rightPort
     };
     var instructionJsonString = jsonEncode(instruciton);
-    _childSendPort.send(instructionJsonString);
+    _commands.send(instructionJsonString);
     //_realArduino.echoTest(leftDevice: _leftPort!, rightDevice: _rightPort!);
     _isConnected = true;
     notifyListeners();
@@ -151,7 +153,7 @@ class SmartWindProvider extends ChangeNotifier {
       'instruction': 'disconnect',
     };
     var instructionJsonString = jsonEncode(instruciton);
-    _childSendPort.send(instructionJsonString);
+    _commands.send(instructionJsonString);
 
     _isConnected = false;
     notifyListeners();
@@ -159,19 +161,56 @@ class SmartWindProvider extends ChangeNotifier {
 
   //Isolate
   late Isolate _childIsolate;
-  late SendPort _childSendPort;
-  late ReceivePort _childReceivePort;
+  late SendPort _commands;
+  late ReceivePort _responses;
   Future<void> _startChildIsolate() async {
-    _childReceivePort = ReceivePort();
-    _childIsolate =
-        await Isolate.spawn(childIsolateEntry, _childReceivePort.sendPort);
+    _responses = ReceivePort();
 
-    _childSendPort = await _childReceivePort.first; // 获取子 Isolate 的发送端口
-    //_childSendPort.send('Hello from main Isolate!'); // 向子 Isolate 发送消息
+    _childIsolate = await Isolate.spawn(childIsolateEntry, _responses.sendPort);
+
+    _responses.listen((message) {
+      if (message is SendPort) {
+        _commands = message;
+      } else if (message is String) {
+        //handle message from isolate
+        handleMessageFromisolate(message);
+      } else {
+        throw "fucking message is not string";
+      }
+    });
+
+    // 处理消息来自isolate
+  }
+
+  void handleMessageFromisolate(String message) {
+    print(message);
+    late Map jsonMap;
+    try {
+      jsonMap = jsonDecode(message);
+      // 处理转换成功的情况
+    } catch (e) {
+      // 处理转换失败的情况
+      print('Error: $e');
+    }
+    if (!jsonMap.containsKey("instruction")) {
+      //error because $key "instruction" is not contained
+      print("eror");
+      return;
+    }
+    switch (jsonMap['instruction']) {
+      case 'setAll':
+        _setAll(jsonMap);
+    }
+  }
+
+  void _setAll(Map jsonMap) {
+    int val = jsonMap['value'];
+    _virtualArduino.setAll(val);
+    notifyListeners();
   }
 
   void setEvenMode(int val) {
-    evenMpde['value'] = val;
+    evenMode['value'] = val;
     notifyListeners();
   }
 
@@ -182,5 +221,44 @@ class SmartWindProvider extends ChangeNotifier {
     gustMode['lowerLimit'] = lowerLimit;
     gustMode['upperLimit'] = upperLimit;
     gustMode['period'] = periodMs;
+  }
+
+  void launch() {
+    //upload config
+    Map config = {'even': evenMode, 'gust': gustMode};
+    Map instruction = {'instruction': 'configUpdate', 'config': config};
+    String instructionJsonString = json.encode(instruction);
+    _commands.send(instructionJsonString);
+    //lauch actually
+    instruction = {'instruction': 'launch', 'mode': currentPredefinedMode};
+    instructionJsonString = json.encode(instruction);
+    _commands.send(instructionJsonString);
+    _isRunning = true;
+    notifyListeners();
+  }
+
+  void unlaunch() {
+    _isRunning = false;
+    notifyListeners();
+  }
+
+  void updatePatter(String pattern) {
+    if (!_patternList.contains(pattern)) {
+      //error handle
+      return;
+    }
+    currentPattern = pattern;
+
+    notifyListeners();
+  }
+
+  void updatePredifinedMode(String mode) {
+    if (!_predifinedModeList.contains(mode)) {
+      //error handle
+
+      return;
+    }
+
+    currentPredefinedMode = mode;
   }
 }

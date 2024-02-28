@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 //import providers
 import '/providers/arduino_provider.dart';
@@ -219,6 +221,10 @@ class ArduinoStatusCard extends StatelessWidget {
         ? connectionSuccessListTile()
         : connectionFailListTile();
 
+    ListTile runningStatus = arduinoModel.isRunning
+        ? runningListTile(context)
+        : notRunningListTile(context);
+
     return Container(
       decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -249,6 +255,7 @@ class ArduinoStatusCard extends StatelessWidget {
             onTap: null,
           ),
           connectionStatus,
+          runningStatus
         ],
       ),
     );
@@ -295,6 +302,55 @@ class ArduinoStatusCard extends StatelessWidget {
       onTap: null,
     );
   }
+
+  ListTile runningListTile(BuildContext context) {
+    final arduinoModel = Provider.of<SmartWindProvider>(context);
+    String pattern = arduinoModel.currentPattern;
+    String mode = arduinoModel.currentPredefinedMode;
+    late String prompt;
+    if (pattern == "predefined") {
+      prompt = "$pattern : $mode";
+    } else {
+      prompt = pattern;
+    }
+
+    return ListTile(
+      leading: const Icon(
+        Icons.wind_power,
+        color: Colors.green,
+      ),
+      title: const Text(
+        'Running',
+        textAlign: TextAlign.left,
+        style: TextStyle(fontWeight: FontWeight.normal, color: Colors.green),
+      ),
+      subtitle: Text(prompt,
+          style: const TextStyle(
+              fontWeight: FontWeight.normal, color: Colors.green)),
+      onTap: null,
+    );
+  }
+
+  ListTile notRunningListTile(BuildContext context) {
+    return const ListTile(
+      leading: Icon(
+        Icons.pause,
+        color: Color.fromARGB(255, 219, 143, 29),
+      ),
+      title: Text(
+        'Not Running',
+        textAlign: TextAlign.left,
+        style: TextStyle(
+            fontWeight: FontWeight.normal,
+            color: Color.fromARGB(255, 219, 143, 29)),
+      ),
+      subtitle: Text('Paused',
+          style: TextStyle(
+              fontWeight: FontWeight.normal,
+              color: Color.fromARGB(255, 219, 143, 29))),
+      onTap: null,
+    );
+  }
 }
 
 class ControlPad extends StatefulWidget {
@@ -319,6 +375,9 @@ class _ControlPadState extends State<ControlPad> {
 
   @override
   Widget build(BuildContext context) {
+    final arduinoModel = Provider.of<SmartWindProvider>(context);
+    _selectedPattern = _patternList.indexOf(arduinoModel.currentPattern);
+    print(arduinoModel.currentPattern);
     return Container(
       decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -359,7 +418,11 @@ class _ControlPadState extends State<ControlPad> {
                   selected: _selectedPattern == index,
                   onSelected: (bool selected) {
                     setState(() {
-                      _selectedPattern = selected ? index : null;
+                      _selectedPattern = selected ? index : index;
+                      //update pattern
+
+                      arduinoModel
+                          .updatePatter(_patternList[_selectedPattern!]);
                     });
                   },
                 );
@@ -384,6 +447,7 @@ class _ControlPadState extends State<ControlPad> {
           OutlinedButton.icon(
             onPressed: () {
               // 按钮按下时的处理逻辑
+              arduinoModel.launch();
             },
             icon: const Icon(Icons.rocket), // 图标
             label: const Text('Luanch'), // 标签文本
@@ -406,9 +470,28 @@ class PredefinedModeSelection extends StatefulWidget {
 
 class _PredefinedModeSelectionState extends State<PredefinedModeSelection> {
   PredefinedModeEnum? _character = PredefinedModeEnum.even;
+  static const List<String> _predifinedModeList = [
+    "even",
+    "gust",
+    "sheer",
+    'wave'
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final arduinoModel = Provider.of<SmartWindProvider>(context);
+
+    switch (arduinoModel.currentPredefinedMode) {
+      case "even":
+        _character = PredefinedModeEnum.even;
+      case "gust":
+        _character = PredefinedModeEnum.gust;
+      case "sheer":
+        _character = PredefinedModeEnum.sheer;
+      case "wave":
+        _character = PredefinedModeEnum.wave;
+    }
+
     return Column(
       children: <Widget>[
         ListTile(
@@ -418,6 +501,21 @@ class _PredefinedModeSelectionState extends State<PredefinedModeSelection> {
             groupValue: _character,
             onChanged: (PredefinedModeEnum? value) {
               setState(() {
+                switch (value) {
+                  case null:
+                    ;
+                  case PredefinedModeEnum.even:
+                    arduinoModel.updatePredifinedMode('even');
+                  case PredefinedModeEnum.gust:
+                    // TODO: Handle this case.
+                    arduinoModel.updatePredifinedMode('gust');
+                  case PredefinedModeEnum.wave:
+                    // TODO: Handle this case.
+                    arduinoModel.updatePredifinedMode('wave');
+                  case PredefinedModeEnum.sheer:
+                    // TODO: Handle this case.
+                    arduinoModel.updatePredifinedMode('sheer');
+                }
                 _character = value;
               });
             },
@@ -430,6 +528,21 @@ class _PredefinedModeSelectionState extends State<PredefinedModeSelection> {
             groupValue: _character,
             onChanged: (PredefinedModeEnum? value) {
               setState(() {
+                switch (value) {
+                  case null:
+                    ;
+                  case PredefinedModeEnum.even:
+                    arduinoModel.updatePredifinedMode('even');
+                  case PredefinedModeEnum.gust:
+                    // TODO: Handle this case.
+                    arduinoModel.updatePredifinedMode('gust');
+                  case PredefinedModeEnum.wave:
+                    // TODO: Handle this case.
+                    arduinoModel.updatePredifinedMode('wave');
+                  case PredefinedModeEnum.sheer:
+                    // TODO: Handle this case.
+                    arduinoModel.updatePredifinedMode('sheer');
+                }
                 _character = value;
               });
             },
@@ -442,6 +555,21 @@ class _PredefinedModeSelectionState extends State<PredefinedModeSelection> {
             groupValue: _character,
             onChanged: (PredefinedModeEnum? value) {
               setState(() {
+                switch (value) {
+                  case null:
+                    ;
+                  case PredefinedModeEnum.even:
+                    arduinoModel.updatePredifinedMode('even');
+                  case PredefinedModeEnum.gust:
+                    // TODO: Handle this case.
+                    arduinoModel.updatePredifinedMode('gust');
+                  case PredefinedModeEnum.wave:
+                    // TODO: Handle this case.
+                    arduinoModel.updatePredifinedMode('wave');
+                  case PredefinedModeEnum.sheer:
+                    // TODO: Handle this case.
+                    arduinoModel.updatePredifinedMode('sheer');
+                }
                 _character = value;
               });
             },
@@ -454,6 +582,21 @@ class _PredefinedModeSelectionState extends State<PredefinedModeSelection> {
             groupValue: _character,
             onChanged: (PredefinedModeEnum? value) {
               setState(() {
+                switch (value) {
+                  case null:
+                    ;
+                  case PredefinedModeEnum.even:
+                    arduinoModel.updatePredifinedMode('even');
+                  case PredefinedModeEnum.gust:
+                    // TODO: Handle this case.
+                    arduinoModel.updatePredifinedMode('gust');
+                  case PredefinedModeEnum.wave:
+                    // TODO: Handle this case.
+                    arduinoModel.updatePredifinedMode('wave');
+                  case PredefinedModeEnum.sheer:
+                    // TODO: Handle this case.
+                    arduinoModel.updatePredifinedMode('sheer');
+                }
                 _character = value;
               });
             },
