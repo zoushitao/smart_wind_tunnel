@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '/providers/arduino_provider.dart';
+import 'package:provider/provider.dart';
 
 class ControlPage extends StatefulWidget {
   const ControlPage({super.key});
@@ -112,16 +114,30 @@ class EvenModeView extends StatefulWidget {
 }
 
 class _EvenModeViewState extends State<EvenModeView> {
+  @override
+  void initState() {
+    super.initState();
+    _evenSliderValue = 0.0;
+  }
+
   double _evenSliderValue = 0.0;
   @override
   Widget build(BuildContext context) {
+    final arduinoModel = Provider.of<SmartWindProvider>(context);
+    int val = arduinoModel.evenMpde['value'];
+
+    _evenSliderValue = val.toDouble();
     return ListView(
       children: <Widget>[
         const SizedBox(height: 10),
         const ListTile(
             //leading: Icon(Icons.pentagon),
             title: Text("Tips"),
-            subtitle: Text("s is ")),
+            subtitle: Text(
+              "Configure will be automatically saved ",
+              style:
+                  TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
+            )),
         const SizedBox(height: 20),
         Row(
           children: [
@@ -130,14 +146,15 @@ class _EvenModeViewState extends State<EvenModeView> {
             Expanded(
                 child: Slider(
               value: _evenSliderValue,
-              min: 0.0,
-              max: 100.0,
-              divisions: 100,
+              min: 0,
+              max: 4095,
+              divisions: 4095,
               label: 'Value: ${_evenSliderValue.toInt()}',
               onChanged: (newValue) {
                 setState(() {
                   _evenSliderValue = newValue;
                   //do something else
+                  arduinoModel.setEvenMode(newValue.toInt());
                 });
               },
             )),

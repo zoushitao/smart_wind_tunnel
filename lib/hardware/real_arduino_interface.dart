@@ -24,16 +24,15 @@ class RealArduinoInterface {
     };
   }
 
-  
-
   Future<void> connect(
       {required String leftDevice, required String rightDevice}) async {
     print("left device : $leftDevice");
     print("right device : $rightDevice");
     print(SerialPort.availablePorts);
 
-    //_rightPort = SerialPort(rightDevice);
-    _leftPort = SerialPort("/dev/cu.usbmodem143201");
+    _rightPort = SerialPort(rightDevice);
+    _leftPort = SerialPort(leftDevice);
+
     try {
       //set baud rate
       //要进行完整的配置更新
@@ -49,6 +48,7 @@ class RealArduinoInterface {
       cfg.xonXoff = 0;
 
       _leftPort.config = cfg;
+      _rightPort.config = cfg;
     } catch (err) {
       print('波特率设置时发生错误：$err');
       return;
@@ -59,17 +59,25 @@ class RealArduinoInterface {
       //_rightPort.config = config;
       print("ok before catch");
       _leftPort.openReadWrite();
+      _rightPort.openReadWrite();
       // 在这里进行写操作
       // ...
       //编码转化
-      String str = 'Hello, World!';
+      // String str = 'Hello, World!';
 
       // 将字符串转换为 ASCII 码的 Uint8List 列表
-      Uint8List bytes = Uint8List.fromList(str.codeUnits);
-      print(_leftPort.write(bytes));
+      //Uint8List bytes = Uint8List.fromList(str.codeUnits);
+      //print(_leftPort.write(bytes));
     } catch (err) {
       print('串口错误：$err');
       // _leftPort.close();
     }
+  }
+
+  Future<void> disconnect() async {
+    //close serial port
+    _leftPort.close();
+    _rightPort.close();
+    
   }
 }

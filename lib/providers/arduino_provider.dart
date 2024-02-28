@@ -61,6 +61,13 @@ class SmartWindProvider extends ChangeNotifier {
   //arduino硬件管理
   final RealArduinoInterface _realArduino = RealArduinoInterface();
 
+  //constants
+  static const MAX_VAL = 4095;
+
+  //settings 保存predefined mode的设置
+  final Map evenMpde = {'value': 0};
+  final Map gustMode = {'lowerLimit': 0, 'upperLimit': MAX_VAL, 'period': 10};
+
   //Connection
   bool _isConnected = false;
   bool get isConnected => _isConnected;
@@ -124,23 +131,28 @@ class SmartWindProvider extends ChangeNotifier {
       return;
       //error handling here
     }
-
+    if (_leftPort == _rightPort) {
+      return;
+    }
     var instruciton = {
       'instruction': 'connect',
       'leftPort': _leftPort,
       'rightPort': _rightPort
     };
     var instructionJsonString = jsonEncode(instruciton);
-
     _childSendPort.send(instructionJsonString);
-
     //_realArduino.echoTest(leftDevice: _leftPort!, rightDevice: _rightPort!);
     _isConnected = true;
     notifyListeners();
   }
 
   void disconnect() {
-    // .....
+    var instruciton = {
+      'instruction': 'disconnect',
+    };
+    var instructionJsonString = jsonEncode(instruciton);
+    _childSendPort.send(instructionJsonString);
+
     _isConnected = false;
     notifyListeners();
   }
@@ -156,5 +168,19 @@ class SmartWindProvider extends ChangeNotifier {
 
     _childSendPort = await _childReceivePort.first; // 获取子 Isolate 的发送端口
     //_childSendPort.send('Hello from main Isolate!'); // 向子 Isolate 发送消息
+  }
+
+  void setEvenMode(int val) {
+    evenMpde['value'] = val;
+    notifyListeners();
+  }
+
+  void setGustMode(
+      {required int lowerLimit,
+      required int upperLimit,
+      required int periodMs}) {
+    gustMode['lowerLimit'] = lowerLimit;
+    gustMode['upperLimit'] = upperLimit;
+    gustMode['period'] = periodMs;
   }
 }

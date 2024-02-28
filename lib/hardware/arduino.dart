@@ -12,7 +12,7 @@ Future<void> childIsolateEntry(SendPort sendPort) async {
 
   receivePort.listen((message) {
     //Process instructions received
-    print('@Isolate : Received message from main: $message');
+
     handleInstruction(message);
   });
   int i = 0;
@@ -20,7 +20,6 @@ Future<void> childIsolateEntry(SendPort sendPort) async {
     i++;
     await Future.delayed(const Duration(seconds: 10), () {
       print('Isolate is running $i');
-      print('@Isolate : isolate is running');
     });
   }
 }
@@ -42,9 +41,26 @@ void handleInstruction(String message) {
   switch (jsonMap['instruction']) {
     case 'connect':
       connect(jsonMap);
+    case 'disconnect':
+      disconnect(jsonMap);
   }
 }
 
 void connect(Map message) {
-  print("connecting");
+  //handle error here
+  if (message['leftPort'] == message['rightPort']) {
+    print("isolate:error when connecting");
+    return;
+  }
+  try {
+    _realArduino.connect(
+        leftDevice: message['leftPort'], rightDevice: message['rightPort']);
+  } catch (e) {
+    print(e);
+  }
+}
+
+void disconnect(Map message) {
+  _realArduino.disconnect();
+  print("disconeccted");
 }
