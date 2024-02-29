@@ -183,7 +183,7 @@ class SmartWindProvider extends ChangeNotifier {
   }
 
   void handleMessageFromisolate(String message) {
-    print(message);
+    // print(message);
     late Map jsonMap;
     try {
       jsonMap = jsonDecode(message);
@@ -205,7 +205,7 @@ class SmartWindProvider extends ChangeNotifier {
 
   void _setAll(Map jsonMap) {
     int val = jsonMap['value'];
-    
+
     _virtualArduino.setAll(val);
     notifyListeners();
   }
@@ -225,6 +225,12 @@ class SmartWindProvider extends ChangeNotifier {
   }
 
   void launch() {
+    if (!_isConnected) {
+      throw "Error : Not Connected";
+    }
+    if (currentPattern != "Predefined") {
+      throw "It's still under development ... choose another one";
+    }
     //upload config
     Map config = {'even': evenMode, 'gust': gustMode};
     Map instruction = {'instruction': 'configUpdate', 'config': config};

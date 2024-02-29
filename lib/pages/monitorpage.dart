@@ -146,7 +146,7 @@ class _MonitorWidgetState extends State<MonitorWidget> {
   ];
 
   Color pwmToColor(List<Color> baseColor, int val) {
-    if (val < 0 || val >= 4095) {
+    if (val < 0) {
       return Colors.white;
     } else {
       var temp = val.toDouble() / 4095.0 * baseColor.length;
@@ -163,6 +163,7 @@ class _MonitorWidgetState extends State<MonitorWidget> {
   final List<Widget> _cells = [];
 
   void _contructCells(BuildContext context) {
+    _cells.clear();
     //Construc cells according to provider
     final arduinoModel = Provider.of<SmartWindProvider>(context);
     var matrix = arduinoModel.virtualArduino.matrix;
@@ -447,13 +448,38 @@ class _ControlPadState extends State<ControlPad> {
           OutlinedButton.icon(
             onPressed: () {
               // 按钮按下时的处理逻辑
-              arduinoModel.launch();
+              try {
+                arduinoModel.launch();
+              } catch (e) {
+                _showLaunchErrorDialog(context, e as String);
+              }
             },
             icon: const Icon(Icons.rocket), // 图标
             label: const Text('Luanch'), // 标签文本
           )
         ],
       ),
+    );
+  }
+
+  void _showLaunchErrorDialog(BuildContext context, String error) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+          content: Text(error),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('ok...let me fix that'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

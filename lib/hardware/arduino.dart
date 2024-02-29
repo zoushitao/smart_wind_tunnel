@@ -22,7 +22,6 @@ Future<void> childIsolateEntry(SendPort sendPort) async {
   _sendPort = sendPort; // 向主 Isolate 发送子 Isolate 的接收端口
   receivePort.listen((message) {
     //Process instructions received
-    print("hellow mesd");
 
     try {
       print(message);
@@ -34,15 +33,13 @@ Future<void> childIsolateEntry(SendPort sendPort) async {
 
   //Runners
   GustModeRunner gustModeRunner = GustModeRunner();
-  GustModeRunner gustModeRunner2 = GustModeRunner();
-  assert(identical(gustModeRunner, gustModeRunner2));
 
   int i = 0;
   while (true) {
     //check before run
 
     //do it
-    await Future.delayed(const Duration(seconds: 1), () {
+    await Future.delayed(const Duration(milliseconds: 1000), () {
       //_sendPort.send("hello from isolate $i");
     });
 
@@ -139,6 +136,7 @@ void _launch(Map message) {
 
 void _setAll(int val) {
   Map instruction = {'instruction': 'setAll', 'value': val};
+  _realArduino.setAll(val);
   _sendPort.send(json.encode(instruction));
 }
 
@@ -153,11 +151,11 @@ class GustModeRunner {
 
   GustModeRunner._internal();
 
-  int _increment = 500;
-  int value = 0;
-  late int lower = 0, upper = 4095;
-  bool _initialized = false;
-  bool _flip = false;
+  static int _increment = 100;
+  static int value = 0;
+  static int lower = 0, upper = 4095;
+  static bool _initialized = false;
+  static bool _flip = false;
   int delay = 20;
   void init(
       {required int lowerLimit,
