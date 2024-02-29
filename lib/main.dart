@@ -223,14 +223,30 @@ class BottomBar extends StatefulWidget {
 class _BottomBarState extends State<BottomBar> {
   @override
   Widget build(BuildContext context) {
+    var arduinoModel = Provider.of<SmartWindProvider>(context);
+    final Color buttomBarColor =
+        arduinoModel.isConnected ? Colors.green : Colors.redAccent;
     return Container(
       width: double.infinity, // 将宽度设置为无限大
       height: 30, //将高度设置
-      color: Colors.black, //颜色用来展示状态
+      color: buttomBarColor, //颜色用来展示状态
       child: Row(
         children: [
           Expanded(
-              flex: 2,
+            flex: 5,
+            child: Text(
+              "Connected",
+              style: TextStyle(
+                color: Colors.white, // 设置文本颜色为蓝色
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: BottomSheetButton(),
+          ),
+          Expanded(
+              flex: 5,
               child: IconButton(
                 icon: Icon(Icons.add),
                 onPressed: () {
@@ -238,20 +254,55 @@ class _BottomBarState extends State<BottomBar> {
                   // 在这里执行您想要的操作
                 },
               )),
-          Expanded(
-            flex: 2,
-            child: Center(
-              child: Text(
-                'Hello World',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          Expanded(flex: 2, child: SizedBox()),
         ],
       ),
+    );
+  }
+}
+
+class BottomSheetButton extends StatelessWidget {
+  const BottomSheetButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      child: const Row(
+        children: [
+          Icon(
+            Icons.upload,
+            color: Colors.white,
+          ),
+          Text(
+            'More Information',
+            style: TextStyle(
+              color: Colors.white, // 设置文本颜色为蓝色
+            ),
+          ),
+        ],
+      ),
+      onPressed: () {
+        showModalBottomSheet<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return SizedBox(
+              height: 200,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const Text('Modal BottomSheet'),
+                    ElevatedButton(
+                      child: const Text('Close BottomSheet'),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

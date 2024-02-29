@@ -78,20 +78,20 @@ class SmartWindProvider extends ChangeNotifier {
   late List<String> _availablePorts = [];
   List<String> get availablePorts => _availablePorts;
   //记得稍后修改
-  String? _leftPort, _rightPort;
+  String? leftPort, rightPort;
 
   int _counter = 0;
 
   int get counter => _counter;
 
   void setLeftSerialPort(String portName) {
-    _leftPort = portName;
-    print("_leftPort:$_leftPort");
+    leftPort = portName;
+    print("_leftPort:$leftPort");
   }
 
   void setRightSerialPort(String portName) {
-    _rightPort = portName;
-    print("_rightPort:$_rightPort");
+    rightPort = portName;
+    print("_rightPort:$rightPort");
   }
 
   Map acquireDeviceDetail(String portName) {
@@ -126,20 +126,20 @@ class SmartWindProvider extends ChangeNotifier {
 
   //connect to serial port and start isolate
   void connect() {
-    if (_leftPort == null || _rightPort == null) {
+    if (leftPort == null || rightPort == null) {
       print("null");
-      print("_leftPort:$_leftPort");
-      print("_rightPort:$_rightPort");
+      print("_leftPort:$leftPort");
+      print("_rightPort:$rightPort");
       return;
       //error handling here
     }
-    if (_leftPort == _rightPort) {
+    if (leftPort == rightPort) {
       return;
     }
     var instruciton = {
       'instruction': 'connect',
-      'leftPort': _leftPort,
-      'rightPort': _rightPort
+      'leftPort': leftPort,
+      'rightPort': rightPort
     };
     var instructionJsonString = jsonEncode(instruciton);
     _commands.send(instructionJsonString);

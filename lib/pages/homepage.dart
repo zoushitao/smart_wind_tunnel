@@ -235,175 +235,183 @@ class _SerialCardState extends State<SerialCard> {
   }
 
   // ignore: non_constant_identifier_names
-  Container RightSerialPort(BuildContext context) {
+  AbsorbPointer RightSerialPort(BuildContext context) {
+    _rightSelectedDevice = _arduinoModel.rightPort ?? "Unknown";
     String? manufacturer =
         _arduinoModel.acquireDeviceDetail(_rightSelectedDevice)["Manufacturer"];
-    manufacturer ??= "Null";
-    return Container(
-      decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color.fromARGB(255, 221, 220, 220),
-              Color.fromARGB(255, 179, 178, 178)
+    manufacturer ??= "Unknown";
+    return AbsorbPointer(
+      absorbing: _arduinoModel.isConnected, //later
+      child: Container(
+        decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.fromARGB(255, 221, 220, 220),
+                Color.fromARGB(255, 179, 178, 178)
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16)),
+        child: Center(
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(
+                  Icons.usb,
+                  color: Colors.black,
+                ),
+                trailing: IconButton(
+                    onPressed: () {
+                      // 按钮点击事件
+                      _showDialog(context, _rightSelectedDevice);
+                    },
+                    icon: const Icon(Icons.info)),
+                title: const Text(
+                  'Right Arduino Device:',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black),
+                ),
+                subtitle: const Text(
+                    'Select a device name from the list and set the baud rate.',
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal, color: Colors.black)),
+                onTap: null,
+              ),
+              const Text(
+                'Device:',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              DropdownMenu<String>(
+                initialSelection: _serialPortList.first,
+                label: const Text('Device Name'),
+                leadingIcon: const Icon(Icons.device_hub),
+                requestFocusOnTap: true,
+                onSelected: (String? value) {
+                  // This is called when the user selects an item.
+                  setState(() {
+                    if (value != null) {
+                      _rightSelectedDevice = value;
+                      _arduinoModel.setRightSerialPort(value!);
+                    }
+                  });
+                },
+                dropdownMenuEntries: _serialPortList
+                    .map<DropdownMenuEntry<String>>((String value) {
+                  return DropdownMenuEntry<String>(value: value, label: value);
+                }).toList(),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              ListTile(
+                leading: Icon(Icons.factory),
+                title: const Text(
+                  "Manufacturer",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black),
+                ),
+                subtitle: Text(manufacturer,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.normal, color: Colors.black)),
+              )
             ],
           ),
-          borderRadius: BorderRadius.circular(16)),
-      child: Center(
-        child: Column(
-          children: [
-            ListTile(
-              leading: const Icon(
-                Icons.usb,
-                color: Colors.black,
-              ),
-              trailing: IconButton(
-                  onPressed: () {
-                    // 按钮点击事件
-                    _showDialog(context, _rightSelectedDevice);
-                  },
-                  icon: const Icon(Icons.info)),
-              title: const Text(
-                'Right Arduino Device:',
-                textAlign: TextAlign.left,
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-              ),
-              subtitle: const Text(
-                  'Select a device name from the list and set the baud rate.',
-                  style: TextStyle(
-                      fontWeight: FontWeight.normal, color: Colors.black)),
-              onTap: null,
-            ),
-            const Text(
-              'Device:',
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            DropdownMenu<String>(
-              initialSelection: _serialPortList.first,
-              label: const Text('Device Name'),
-              leadingIcon: const Icon(Icons.device_hub),
-              requestFocusOnTap: true,
-              onSelected: (String? value) {
-                // This is called when the user selects an item.
-                setState(() {
-                  if (value != null) {
-                    _rightSelectedDevice = value!;
-                  }
-                });
-              },
-              dropdownMenuEntries: _serialPortList
-                  .map<DropdownMenuEntry<String>>((String value) {
-                return DropdownMenuEntry<String>(value: value, label: value);
-              }).toList(),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            ListTile(
-              leading: Icon(Icons.factory),
-              title: const Text(
-                "Manufacturer",
-                textAlign: TextAlign.left,
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-              ),
-              subtitle: Text(manufacturer,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.normal, color: Colors.black)),
-            )
-          ],
         ),
       ),
     );
   }
 
-  Container LeftSerialPort(BuildContext context) {
+  AbsorbPointer LeftSerialPort(BuildContext context) {
     String? manufacturer =
         _arduinoModel.acquireDeviceDetail(_leftSelectedDevice)["Manufacturer"];
     manufacturer ??= "Null";
-    return Container(
-      decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color.fromARGB(255, 179, 178, 178),
-              Color.fromARGB(255, 221, 220, 220),
+    return AbsorbPointer(
+      absorbing: _arduinoModel.isConnected,
+      child: Container(
+        decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color.fromARGB(255, 179, 178, 178),
+                Color.fromARGB(255, 221, 220, 220),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16)),
+        child: Center(
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(
+                  Icons.usb,
+                  color: Colors.black,
+                ),
+                trailing: IconButton(
+                    onPressed: () {
+                      // 按钮点击事件
+                      _showDialog(context, _leftSelectedDevice);
+                    },
+                    icon: const Icon(Icons.info)),
+                title: const Text(
+                  'Left Arduino Device:',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black),
+                ),
+                subtitle: const Text(
+                    'Select a device name from the list and set the baud rate.',
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal, color: Colors.black)),
+                onTap: null,
+              ),
+              const Text(
+                'Device:',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              DropdownMenu<String>(
+                initialSelection: _serialPortList.first,
+                label: const Text('Device Name'),
+                leadingIcon: const Icon(Icons.device_hub),
+                requestFocusOnTap: true,
+                onSelected: (String? value) {
+                  // This is called when the user selects an item.
+                  setState(() {
+                    if (value != null) {
+                      _leftSelectedDevice = value!;
+                    }
+                  });
+                },
+                dropdownMenuEntries: _serialPortList
+                    .map<DropdownMenuEntry<String>>((String value) {
+                  return DropdownMenuEntry<String>(value: value, label: value);
+                }).toList(),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              ListTile(
+                leading: Icon(Icons.factory),
+                title: const Text(
+                  "Manufacturer",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.black),
+                ),
+                subtitle: Text(manufacturer,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.normal, color: Colors.black)),
+              )
             ],
           ),
-          borderRadius: BorderRadius.circular(16)),
-      child: Center(
-        child: Column(
-          children: [
-            ListTile(
-              leading: const Icon(
-                Icons.usb,
-                color: Colors.black,
-              ),
-              trailing: IconButton(
-                  onPressed: () {
-                    // 按钮点击事件
-                    _showDialog(context, _leftSelectedDevice);
-                  },
-                  icon: const Icon(Icons.info)),
-              title: const Text(
-                'Left Arduino Device:',
-                textAlign: TextAlign.left,
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-              ),
-              subtitle: const Text(
-                  'Select a device name from the list and set the baud rate.',
-                  style: TextStyle(
-                      fontWeight: FontWeight.normal, color: Colors.black)),
-              onTap: null,
-            ),
-            const Text(
-              'Device:',
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            DropdownMenu<String>(
-              initialSelection: _serialPortList.first,
-              label: const Text('Device Name'),
-              leadingIcon: const Icon(Icons.device_hub),
-              requestFocusOnTap: true,
-              onSelected: (String? value) {
-                // This is called when the user selects an item.
-                setState(() {
-                  if (value != null) {
-                    _leftSelectedDevice = value!;
-                  }
-                });
-              },
-              dropdownMenuEntries: _serialPortList
-                  .map<DropdownMenuEntry<String>>((String value) {
-                return DropdownMenuEntry<String>(value: value, label: value);
-              }).toList(),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            ListTile(
-              leading: Icon(Icons.factory),
-              title: const Text(
-                "Manufacturer",
-                textAlign: TextAlign.left,
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-              ),
-              subtitle: Text(manufacturer,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.normal, color: Colors.black)),
-            )
-          ],
         ),
       ),
     );
