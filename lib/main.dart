@@ -1,14 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 //import providers
 import 'providers/arduino_provider.dart';
+
+// third party lib
+import 'package:window_manager/window_manager.dart';
 //import pages
 import './pages/homepage.dart';
 import 'pages/monitorpage.dart';
 import 'pages/controlpage.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Must add this line.
+  await windowManager.ensureInitialized();
+
+  WindowOptions windowOptions = const WindowOptions(
+    minimumSize: Size(1400, 800),
+    size: Size(1400, 800),
+    center: true,
+    backgroundColor: Colors.transparent,
+    skipTaskbar: false,
+    titleBarStyle: TitleBarStyle.hidden,
+  );
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.focus();
+  });
   runApp(
     MultiProvider(
       providers: [
@@ -185,7 +203,7 @@ class MainFloatingButton extends StatelessWidget {
     return FloatingActionButton(
       onPressed: () {
         // 在这里添加你的按钮点击事件处理
-       // Provider.of<SmartWindProvider>(context, listen: false).startIsolate();
+        // Provider.of<SmartWindProvider>(context, listen: false).startIsolate();
       },
       child: Icon(Icons.pause),
       backgroundColor: Colors.green,

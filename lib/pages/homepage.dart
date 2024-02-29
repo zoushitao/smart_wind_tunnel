@@ -176,7 +176,7 @@ class WelcomeCard extends StatelessWidget {
                 const SizedBox(height: 25),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.add, size: 18),
-                  label: const Text("fuck "),
+                  label: const Text("see tutorial "),
                   onPressed: () {},
                 )
               ],

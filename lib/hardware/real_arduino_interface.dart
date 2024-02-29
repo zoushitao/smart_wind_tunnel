@@ -29,14 +29,9 @@ class RealArduinoInterface {
 
   Future<void> connect(
       {required String leftDevice, required String rightDevice}) async {
-    print("left device : $leftDevice");
-    print("right device : $rightDevice");
-    print(SerialPort.availablePorts);
-
-    _rightPort = SerialPort(rightDevice);
-    _leftPort = SerialPort(leftDevice);
-
     try {
+      _rightPort = SerialPort(rightDevice);
+      _leftPort = SerialPort(leftDevice);
       //set baud rate
       //要进行完整的配置更新
       final SerialPortConfig leftCfg = SerialPortConfig();
@@ -63,8 +58,6 @@ class RealArduinoInterface {
 
     //open serial port
     try {
-      //_rightPort.config = config;
-      print("ok before catch");
       _leftPort.openReadWrite();
       _rightPort.openReadWrite();
       _leftReader = SerialPortReader(_leftPort);
@@ -90,34 +83,26 @@ class RealArduinoInterface {
       });
     } catch (err) {
       print('串口错误：$err');
-      // _leftPort.close();
-    }
-
-    try {
-      _leftReader?.stream.listen((event) {
-        String data = String.fromCharCodes(event);
-        print("From left port event : $data");
-      });
-      _rightReader?.stream.listen((event) {
-        String data = String.fromCharCodes(event);
-        print("From right port event : $data");
-      });
-    } catch (e) {
-      print("listen error:$e");
+      _leftPort.close();
+      _rightPort.close();
     }
   }
 
   Future<void> disconnect() async {
     //close serial port
-    _leftPort.close();
-    _rightPort.close();
-    _leftReader?.close();
-    _rightReader?.close();
+    try {
+      _leftPort.close();
+      _rightPort.close();
+      _leftReader?.close();
+      _rightReader?.close();
+    } catch (e) {
+      print('e');
+    }
   }
 
   Future<void> setAll(int val) async {
     if (!(_leftPort.isOpen && _rightPort.isOpen)) {
-      print("error when setting all");
+      print("error when setting all because connection failed");
       return;
     }
 
