@@ -61,8 +61,10 @@ class _ModeSettingsWidgetState extends State<ModeSettingsWidget> {
                 icon: Icon(Icons.wind_power),
               ),
               Tab(
-                text: 'Tab 2',
-                icon: Icon(Icons.cloud),
+                text: 'Gust Mode',
+                icon: Icon(
+                  Icons.wind_power,
+                ),
               ),
               Tab(
                 text: 'Tab 3',
