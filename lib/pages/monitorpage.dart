@@ -641,8 +641,13 @@ class MonitorAppearance extends StatefulWidget {
 }
 
 class _MonitorAppearanceState extends State<MonitorAppearance> {
+  late List<String> _colorList = [];
+  String? _selectedColor;
   @override
   Widget build(BuildContext context) {
+    final arduinoModel = Provider.of<SmartWindProvider>(context);
+    _colorList = arduinoModel.colorList;
+    _selectedColor = arduinoModel.currentColorScheme;
     return Container(
       decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -654,9 +659,9 @@ class _MonitorAppearanceState extends State<MonitorAppearance> {
             ],
           ),
           borderRadius: BorderRadius.circular(16)),
-      child: const Column(
+      child: Column(
         children: [
-          ListTile(
+          const ListTile(
             leading: Icon(
               Icons.looks,
               color: Colors.black,
@@ -672,6 +677,24 @@ class _MonitorAppearanceState extends State<MonitorAppearance> {
                 style: TextStyle(
                     fontWeight: FontWeight.normal, color: Colors.black)),
             onTap: null,
+          ),
+          const SizedBox(height: 20),
+          DropdownMenu<String>(
+            initialSelection: _colorList.first,
+            label: const Text('Color Theme'),
+            leadingIcon: const Icon(Icons.device_hub),
+            requestFocusOnTap: true,
+            onSelected: (String? value) {
+              // This is called when the user selects an item.
+              setState(() {
+                _selectedColor = value ?? _colorList.first;
+                arduinoModel.setColorScheme(value ?? _colorList.first);
+              });
+            },
+            dropdownMenuEntries:
+                _colorList.map<DropdownMenuEntry<String>>((String value) {
+              return DropdownMenuEntry<String>(value: value, label: value);
+            }).toList(),
           ),
         ],
       ),

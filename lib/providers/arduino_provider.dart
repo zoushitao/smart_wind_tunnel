@@ -60,7 +60,25 @@ class SmartWindProvider extends ChangeNotifier {
   bool get isRunning => _isRunning;
 
   //Color Scheme
-  
+  static const List<String> _colorList = [
+    "blue",
+    "green",
+    "yellow",
+    "purple",
+    "red"
+  ];
+  List<String> get colorList => _colorList;
+  String _currentColorScheme = _colorList.first;
+  String get currentColorScheme => _currentColorScheme;
+
+  void setColorScheme(String color) {
+    if (!_colorList.contains(color)) {
+      return;
+    } else {
+      _currentColorScheme = color;
+    }
+    notifyListeners();
+  }
 
   //Mode
   static const List<String> _patternList = [
@@ -86,7 +104,6 @@ class SmartWindProvider extends ChangeNotifier {
   int _counter = 0;
 
   int get counter => _counter;
-  
 
   void setLeftSerialPort(String portName) {
     leftPort = portName;
@@ -272,6 +289,4 @@ class SmartWindProvider extends ChangeNotifier {
 
     currentPredefinedMode = mode;
   }
-
-  
 }
