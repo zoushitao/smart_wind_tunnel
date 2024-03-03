@@ -46,7 +46,7 @@ class _ViewPageState extends State<ViewPage> {
                 height: 20,
               ),
               SizedBox(
-                height: 400,
+                height: 200,
                 child: MonitorAppearance(),
               ),
             ]),
@@ -63,8 +63,16 @@ class _ViewPageState extends State<ViewPage> {
         Expanded(
           flex: 4,
           child: const Padding(
-              padding: EdgeInsets.fromLTRB(80, 20, 80, 0),
-              child: MonitorWidget()),
+              padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: ColorBarIlustration(),
+                  ),
+                  Expanded(flex: 10, child: MonitorWidget()),
+                ],
+              )),
         ),
       ],
     );
@@ -78,72 +86,73 @@ class MonitorWidget extends StatefulWidget {
   _MonitorWidgetState createState() => _MonitorWidgetState();
 }
 
+final List<Color> _blueColors = [
+  Colors.blue.shade50,
+  Colors.blue.shade100,
+  Colors.blue.shade200,
+  Colors.blue.shade300,
+  Colors.blue.shade400,
+  Colors.blue.shade500,
+  Colors.blue.shade600,
+  Colors.blue.shade700,
+  Colors.blue.shade800,
+  Colors.blue.shade900
+];
+
+final List<Color> _greenColors = [
+  Colors.green.shade50,
+  Colors.green.shade100,
+  Colors.green.shade200,
+  Colors.green.shade300,
+  Colors.green.shade400,
+  Colors.green.shade500,
+  Colors.green.shade600,
+  Colors.green.shade700,
+  Colors.green.shade800,
+  Colors.green.shade900,
+];
+
+final List<Color> _yellowColors = [
+  Colors.yellow.shade50,
+  Colors.yellow.shade100,
+  Colors.yellow.shade200,
+  Colors.yellow.shade300,
+  Colors.yellow.shade400,
+  Colors.yellow.shade500,
+  Colors.yellow.shade600,
+  Colors.yellow.shade700,
+  Colors.yellow.shade800,
+  Colors.yellow.shade900,
+];
+
+final List<Color> _purpleColors = [
+  Colors.purple.shade50,
+  Colors.purple.shade100,
+  Colors.purple.shade200,
+  Colors.purple.shade300,
+  Colors.purple.shade400,
+  Colors.purple.shade500,
+  Colors.purple.shade600,
+  Colors.purple.shade700,
+  Colors.purple.shade800,
+  Colors.purple.shade900,
+];
+
+final List<Color> _redColors = [
+  Colors.red.shade50,
+  Colors.red.shade100,
+  Colors.red.shade200,
+  Colors.red.shade300,
+  Colors.red.shade400,
+  Colors.red.shade500,
+  Colors.red.shade600,
+  Colors.red.shade700,
+  Colors.red.shade800,
+  Colors.red.shade900,
+];
+
 class _MonitorWidgetState extends State<MonitorWidget> {
   final Color baseColor = Colors.blue;
-  final List<Color> blueColors = [
-    Colors.blue.shade50,
-    Colors.blue.shade100,
-    Colors.blue.shade200,
-    Colors.blue.shade300,
-    Colors.blue.shade400,
-    Colors.blue.shade500,
-    Colors.blue.shade600,
-    Colors.blue.shade700,
-    Colors.blue.shade800,
-    Colors.blue.shade900
-  ];
-
-  final List<Color> greenColors = [
-    Colors.green.shade50,
-    Colors.green.shade100,
-    Colors.green.shade200,
-    Colors.green.shade300,
-    Colors.green.shade400,
-    Colors.green.shade500,
-    Colors.green.shade600,
-    Colors.green.shade700,
-    Colors.green.shade800,
-    Colors.green.shade900,
-  ];
-
-  final List<Color> yellowColors = [
-    Colors.yellow.shade50,
-    Colors.yellow.shade100,
-    Colors.yellow.shade200,
-    Colors.yellow.shade300,
-    Colors.yellow.shade400,
-    Colors.yellow.shade500,
-    Colors.yellow.shade600,
-    Colors.yellow.shade700,
-    Colors.yellow.shade800,
-    Colors.yellow.shade900,
-  ];
-
-  final List<Color> purpleColors = [
-    Colors.purple.shade50,
-    Colors.purple.shade100,
-    Colors.purple.shade200,
-    Colors.purple.shade300,
-    Colors.purple.shade400,
-    Colors.purple.shade500,
-    Colors.purple.shade600,
-    Colors.purple.shade700,
-    Colors.purple.shade800,
-    Colors.purple.shade900,
-  ];
-
-  final List<Color> redColors = [
-    Colors.red.shade50,
-    Colors.red.shade100,
-    Colors.red.shade200,
-    Colors.red.shade300,
-    Colors.red.shade400,
-    Colors.red.shade500,
-    Colors.red.shade600,
-    Colors.red.shade700,
-    Colors.red.shade800,
-    Colors.red.shade900,
-  ];
 
   Color pwmToColor(List<Color> baseColor, int val) {
     if (val < 0) {
@@ -166,6 +175,19 @@ class _MonitorWidgetState extends State<MonitorWidget> {
     _cells.clear();
     //Construc cells according to provider
     final arduinoModel = Provider.of<SmartWindProvider>(context);
+    late List<Color> colorScheme;
+    switch (arduinoModel.currentColorScheme) {
+      case "blue":
+        colorScheme = _blueColors;
+      case "green":
+        colorScheme = _greenColors;
+      case "yellow":
+        colorScheme = _yellowColors;
+      case "purple":
+        colorScheme = _purpleColors;
+      case "red":
+        colorScheme = _redColors;
+    }
     var matrix = arduinoModel.virtualArduino.matrix;
     // 获取矩阵的行数和列数
     int numRows = matrix.length;
@@ -173,7 +195,7 @@ class _MonitorWidgetState extends State<MonitorWidget> {
     // 迭代遍历矩阵
     for (int i = 0; i < numRows; i++) {
       for (int j = 0; j < numCols; j++) {
-        Color cellColor = pwmToColor(blueColors, matrix[i][j]);
+        Color cellColor = pwmToColor(colorScheme, matrix[i][j]);
         _cells.add(DecoratedBox(
           decoration: BoxDecoration(
             color: cellColor,
@@ -648,15 +670,25 @@ class _MonitorAppearanceState extends State<MonitorAppearance> {
     final arduinoModel = Provider.of<SmartWindProvider>(context);
     _colorList = arduinoModel.colorList;
     _selectedColor = arduinoModel.currentColorScheme;
+    late List<Color> colorScheme;
+    switch (arduinoModel.currentColorScheme) {
+      case "blue":
+        colorScheme = _blueColors;
+      case "green":
+        colorScheme = _greenColors;
+      case "yellow":
+        colorScheme = _yellowColors;
+      case "purple":
+        colorScheme = _purpleColors;
+      case "red":
+        colorScheme = _redColors;
+    }
     return Container(
       decoration: BoxDecoration(
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color.fromARGB(255, 221, 220, 220),
-              Color.fromARGB(255, 179, 178, 178)
-            ],
+            colors: [colorScheme[1], colorScheme[4]],
           ),
           borderRadius: BorderRadius.circular(16)),
       child: Column(
@@ -682,7 +714,7 @@ class _MonitorAppearanceState extends State<MonitorAppearance> {
           DropdownMenu<String>(
             initialSelection: _colorList.first,
             label: const Text('Color Theme'),
-            leadingIcon: const Icon(Icons.device_hub),
+            leadingIcon: const Icon(Icons.color_lens),
             requestFocusOnTap: true,
             onSelected: (String? value) {
               // This is called when the user selects an item.
@@ -693,11 +725,74 @@ class _MonitorAppearanceState extends State<MonitorAppearance> {
             },
             dropdownMenuEntries:
                 _colorList.map<DropdownMenuEntry<String>>((String value) {
-              return DropdownMenuEntry<String>(value: value, label: value);
+              return DropdownMenuEntry<String>(
+                  value: value,
+                  label: value,
+                  leadingIcon: const Icon(Icons.color_lens));
             }).toList(),
           ),
         ],
       ),
+    );
+  }
+}
+
+class ColorBarIlustration extends StatefulWidget {
+  const ColorBarIlustration({Key? key}) : super(key: key);
+
+  @override
+  _ColorBarIlustrationState createState() => _ColorBarIlustrationState();
+}
+
+class _ColorBarIlustrationState extends State<ColorBarIlustration> {
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> colorBarList = [];
+    final arduinoModel = Provider.of<SmartWindProvider>(context);
+    late List<Color> colorScheme;
+    switch (arduinoModel.currentColorScheme) {
+      case "blue":
+        colorScheme = _blueColors;
+      case "green":
+        colorScheme = _greenColors;
+      case "yellow":
+        colorScheme = _yellowColors;
+      case "purple":
+        colorScheme = _purpleColors;
+      case "red":
+        colorScheme = _redColors;
+    }
+    int i = 0;
+    int step = 100 % colorScheme.length;
+    for (var color in colorScheme) {
+      Row row = Row(
+        children: [
+          Container(width: 20, child: Text("$i")),
+          const SizedBox(width: 8),
+          Container(
+            height: 16,
+            width: 16,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: color,
+              ),
+              child: null,
+            ),
+          )
+        ],
+      );
+      colorBarList.add(row);
+      i += 10;
+    }
+
+    return Column(
+      children: [
+        const Text("PWM(%)"),
+        const SizedBox(
+          height: 10,
+        ),
+        ...colorBarList
+      ],
     );
   }
 }

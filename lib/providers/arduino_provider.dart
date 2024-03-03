@@ -128,10 +128,7 @@ class SmartWindProvider extends ChangeNotifier {
   SmartWindProvider() {
     // 初始化函数
     _startChildIsolate();
-    print("initializing");
-
     refreshSerialList();
-    print(_availablePorts);
     notifyListeners();
   }
 
@@ -142,6 +139,8 @@ class SmartWindProvider extends ChangeNotifier {
     } catch (err) {
       print('串口错误：$err');
     }
+    leftPort = _availablePorts[0];
+    rightPort = _availablePorts[0];
     notifyListeners();
   }
 
