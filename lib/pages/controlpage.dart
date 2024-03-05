@@ -67,8 +67,8 @@ class _ModeSettingsWidgetState extends State<ModeSettingsWidget> {
                 ),
               ),
               Tab(
-                text: 'Tab 3',
-                icon: Icon(Icons.tab),
+                text: 'Sheer Mode',
+                icon: Icon(Icons.window),
               ),
               Tab(
                 text: 'Tab 4',
@@ -79,17 +79,13 @@ class _ModeSettingsWidgetState extends State<ModeSettingsWidget> {
         ),
         body: TabBarView(
           children: [
-            // 第一个选项卡的内容
+            // The first tab
             const EvenModeView(),
-            // 第二个选项卡的内容
+            // The second tab
             const GustModeView(),
-            // 第三个选项卡的内容
-            Container(
-              child: Center(
-                child: Text('Tab 3 Content'),
-              ),
-            ),
-            // 第四个选项卡的内容
+            // The third tab
+            const SheerModeView(),
+            // The fourth tab
             Container(
               child: Center(
                 child: Text('Tab 4 Content'),
@@ -270,6 +266,65 @@ class _GustModeViewState extends State<GustModeView> {
               },
             )),
             const SizedBox(height: 20),
+          ],
+        )
+      ],
+    );
+  }
+}
+
+class SheerModeView extends StatefulWidget {
+  const SheerModeView({Key? key}) : super(key: key);
+
+  @override
+  _SheerModeViewState createState() => _SheerModeViewState();
+}
+
+class _SheerModeViewState extends State<SheerModeView> {
+  @override
+  void initState() {
+    super.initState();
+    _evenSliderValue = 0.0;
+  }
+
+  double _evenSliderValue = 0.0;
+  @override
+  Widget build(BuildContext context) {
+    final arduinoModel = Provider.of<SmartWindProvider>(context);
+    int val = arduinoModel.evenMode['value'];
+
+    _evenSliderValue = val.toDouble();
+    return ListView(
+      children: <Widget>[
+        const SizedBox(height: 10),
+        const ListTile(
+            //leading: Icon(Icons.pentagon),
+            title: Text("Tips"),
+            subtitle: Text(
+              "Configure will be automatically saved ",
+              style:
+                  TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
+            )),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            const SizedBox(width: 10),
+            const Text("Value : "),
+            Expanded(
+                child: Slider(
+              value: _evenSliderValue,
+              min: 0,
+              max: 4095,
+              divisions: 4095,
+              label: 'Value: ${_evenSliderValue.toInt()}',
+              onChanged: (newValue) {
+                setState(() {
+                  _evenSliderValue = newValue;
+                  //do something else
+                  arduinoModel.setEvenMode(newValue.toInt());
+                });
+              },
+            )),
           ],
         )
       ],

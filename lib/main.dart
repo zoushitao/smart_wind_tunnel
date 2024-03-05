@@ -365,11 +365,11 @@ class _ExampleSidebarXState extends State<ExampleSidebarX> {
   var actionColor = const Color(0xFF5F5FA7).withOpacity(0.6);
 
   var divider =
-      Divider(color: ExampleSidebarX.white.withOpacity(0.3), height: 1);
+      Divider(color: ExampleSidebarX.white.withOpacity(0.3), height: 2);
 
   @override
   Widget build(BuildContext context) {
-    final themeColor = Theme.of(context).primaryColorDark;
+    final themeColor = const Color.fromARGB(255, 180, 181, 182);
     final arduinoModel = Provider.of<SmartWindProvider>(context);
     return SidebarX(
       controller: widget._controller,
@@ -393,9 +393,10 @@ class _ExampleSidebarXState extends State<ExampleSidebarX> {
           border: Border.all(
             color: themeColor.withOpacity(0.37),
           ),
-          gradient: LinearGradient(
-            colors: [Theme.of(context).primaryColor, themeColor],
-          ),
+          gradient: const LinearGradient(colors: [
+            Color.fromARGB(255, 102, 101, 101),
+            Color.fromARGB(255, 102, 101, 101),
+          ]),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.28),
@@ -437,15 +438,15 @@ class _ExampleSidebarXState extends State<ExampleSidebarX> {
           },
         ),
         SidebarXItem(
-          icon: Icons.search,
-          label: 'Search',
+          icon: Icons.wind_power,
+          label: 'Control Panel',
           onTap: () {
             arduinoModel.selectedPageIndex = 1;
           },
         ),
         SidebarXItem(
-          icon: Icons.people,
-          label: 'People',
+          icon: Icons.settings,
+          label: 'Settings',
           onTap: () {
             arduinoModel.selectedPageIndex = 2;
           },

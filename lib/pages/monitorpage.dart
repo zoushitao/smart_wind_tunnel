@@ -25,7 +25,7 @@ class _ViewPageState extends State<ViewPage> {
               SizedBox(height: 20),
               Center(
                 child: Text(
-                  'Right Arduino Device:',
+                  'Status View',
                   textAlign: TextAlign.left,
                   style: TextStyle(
                       fontWeight: FontWeight.bold, color: Colors.black),
