@@ -98,7 +98,11 @@ class SerialConnectionButton extends StatelessWidget {
       icon: const Icon(Icons.connecting_airports, size: 20),
       label: const Text("Connect "),
       onPressed: () {
-        arduinoModel.connect();
+        if (arduinoModel.leftPort == arduinoModel.rightPort) {
+          //Error
+        } else {
+          arduinoModel.connect();
+        }
       },
     );
   }

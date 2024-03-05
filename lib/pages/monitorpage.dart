@@ -787,12 +787,51 @@ class _ColorBarIlustrationState extends State<ColorBarIlustration> {
 
     return Column(
       children: [
+        IconButton(
+          icon: const Icon(Icons.fullscreen),
+          onPressed: () {
+            _showFullscreenDialog(context);
+          },
+        ),
+        const SizedBox(
+          height: 50,
+        ),
         const Text("PWM(%)"),
         const SizedBox(
           height: 10,
         ),
         ...colorBarList
       ],
+    );
+  }
+
+  void _showFullscreenDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.zero,
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: Colors.white,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 640, width: 600, child: MonitorWidget()),
+                ElevatedButton(
+                  child: const Text('Close'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      //fullscreenDialog: true,
     );
   }
 }
