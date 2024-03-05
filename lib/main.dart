@@ -5,6 +5,7 @@ import 'providers/arduino_provider.dart';
 
 // third party lib
 import 'package:window_manager/window_manager.dart';
+import 'package:sidebarx/sidebarx.dart';
 //import pages
 import './pages/homepage.dart';
 import 'pages/monitorpage.dart';
@@ -12,6 +13,20 @@ import 'pages/controlpage.dart';
 import 'dart:async';
 
 Future<void> main() async {
+  await initWindow();
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<SmartWindProvider>(
+          create: (context) => SmartWindProvider(),
+        ),
+      ],
+      child: MyApp(),
+    ),
+  );
+}
+
+Future<void> initWindow() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Must add this line.
   await windowManager.ensureInitialized();
@@ -28,16 +43,6 @@ Future<void> main() async {
     await windowManager.show();
     await windowManager.focus();
   });
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider<SmartWindProvider>(
-          create: (context) => SmartWindProvider(),
-        ),
-      ],
-      child: MyApp(),
-    ),
-  );
 }
 
 class MyApp extends StatelessWidget {
@@ -68,11 +73,19 @@ class MainApp extends StatefulWidget {
   _MainAppState createState() => _MainAppState();
 }
 
+final _controller = SidebarXController(selectedIndex: 0, extended: true);
+final _key = GlobalKey<ScaffoldState>();
+
 class _MainAppState extends State<MainApp> {
   int selectedIndex = 0;
-  final _widgetList = <Widget>[HomePage(), ViewPage(), ControlPage()];
+  final _widgetList = <Widget>[
+    const HomePage(),
+    const ViewPage(),
+    const ControlPage()
+  ];
   @override
   Widget build(BuildContext context) {
+    final arduinoModel = Provider.of<SmartWindProvider>(context);
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
         appBar: appBar(context),
@@ -80,7 +93,7 @@ class _MainAppState extends State<MainApp> {
         floatingActionButton: MainFloatingButton(),
         body: Row(
           children: [
-            SafeArea(child: NavigationBar(constraints)),
+            SafeArea(child: ExampleSidebarX(controller: _controller)),
             const Divider(
               color: Colors.black,
               thickness: 2.0,
@@ -89,7 +102,7 @@ class _MainAppState extends State<MainApp> {
             Expanded(
               child: Container(
                 color: const Color.fromARGB(255, 233, 232, 232),
-                child: _widgetList[selectedIndex],
+                child: _widgetList[arduinoModel.selectedPageIndex],
               ),
             ),
           ],
@@ -100,48 +113,43 @@ class _MainAppState extends State<MainApp> {
 
   AppBar appBar(BuildContext context) {
     return AppBar(
-        //backgroundColor: Theme.of(context).primaryColor,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-              gradient: LinearGradient(colors: [
-            Color(0xFF846AFF),
-            Color(0xFF755EE8),
-            Colors.purpleAccent,
-            Colors.amber,
-          ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
-        ),
-        title: const Text('Smart Wind',
-            style: TextStyle(
-              color: Colors.white, // 设置文本颜色为蓝色
-            )),
-        centerTitle: true, //居中标题
+      //backgroundColor: Theme.of(context).primaryColor,
+      flexibleSpace: Container(
+        decoration: const BoxDecoration(
+            gradient: LinearGradient(colors: [
+          Color(0xFF846AFF),
+          Color(0xFF755EE8),
+          Colors.purpleAccent,
+          Colors.amber,
+        ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
+      ),
+      title: const Text('Smart Wind',
+          style: TextStyle(
+            color: Colors.white, // 设置文本颜色为蓝色
+          )),
+      centerTitle: true, //居中标题
 
-        //右侧按钮
-        actions: [
-          IconButton(
-            color: Colors.white,
-            icon: Icon(Icons.info),
-            onPressed: () {
-              // 右侧按钮1点击事件
-              _showInfoDialog(context);
-            },
-          ),
-          IconButton(
-            color: Colors.white,
-            icon: Icon(Icons.more_vert),
-            onPressed: () {
-              // 右侧按钮2点击事件
-            },
-          ),
-        ],
-        //左侧按钮
-        leading: IconButton(
+      //右侧按钮
+      actions: [
+        IconButton(
           color: Colors.white,
-          icon: Icon(Icons.exit_to_app),
+          icon: Icon(Icons.info),
           onPressed: () {
-            // 点击左侧按钮的事件
+            // 右侧按钮1点击事件
+            _showInfoDialog(context);
           },
-        ));
+        ),
+        IconButton(
+          color: Colors.white,
+          icon: Icon(Icons.more_vert),
+          onPressed: () {
+            // 右侧按钮2点击事件
+            print("controller.selectedIndex:${_controller.selectedIndex}");
+          },
+        ),
+      ],
+      //左侧按钮
+    );
   }
 
   // ignore: non_constant_identifier_names
@@ -331,5 +339,139 @@ class BottomSheetButton extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+class ExampleSidebarX extends StatefulWidget {
+  ExampleSidebarX({
+    super.key,
+    required SidebarXController controller,
+  }) : _controller = controller;
+
+  final SidebarXController _controller;
+
+  //configure
+  static const primaryColor = Color(0xFF685BFF);
+  static const canvasColor = Color(0xFF2E2E48);
+  static const scaffoldBackgroundColor = Color(0xFF464667);
+  static const accentCanvasColor = Color(0xFF3E3E61);
+  static const white = Colors.white;
+
+  @override
+  State<ExampleSidebarX> createState() => _ExampleSidebarXState();
+}
+
+class _ExampleSidebarXState extends State<ExampleSidebarX> {
+  var actionColor = const Color(0xFF5F5FA7).withOpacity(0.6);
+
+  var divider =
+      Divider(color: ExampleSidebarX.white.withOpacity(0.3), height: 1);
+
+  @override
+  Widget build(BuildContext context) {
+    final themeColor = Theme.of(context).primaryColorDark;
+    final arduinoModel = Provider.of<SmartWindProvider>(context);
+    return SidebarX(
+      controller: widget._controller,
+      theme: SidebarXTheme(
+        margin: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: themeColor,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        hoverColor: themeColor,
+        textStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+        selectedTextStyle: const TextStyle(color: Colors.white),
+        itemTextPadding: const EdgeInsets.only(left: 30),
+        selectedItemTextPadding: const EdgeInsets.only(left: 30),
+        itemDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: themeColor),
+        ),
+        selectedItemDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: themeColor.withOpacity(0.37),
+          ),
+          gradient: LinearGradient(
+            colors: [Theme.of(context).primaryColor, themeColor],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.28),
+              blurRadius: 30,
+            )
+          ],
+        ),
+        iconTheme: IconThemeData(
+          color: Colors.white.withOpacity(0.7),
+          size: 20,
+        ),
+        selectedIconTheme: const IconThemeData(
+          color: Colors.white,
+          size: 20,
+        ),
+      ),
+      extendedTheme: SidebarXTheme(
+        width: 200,
+        decoration: BoxDecoration(
+          color: themeColor,
+        ),
+      ),
+      footerDivider: divider,
+      headerBuilder: (context, extended) {
+        return SizedBox(
+          height: 100,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Image.asset('assets/images/arduino.png'),
+          ),
+        );
+      },
+      items: [
+        SidebarXItem(
+          icon: Icons.home,
+          label: 'Home',
+          onTap: () {
+            arduinoModel.selectedPageIndex = 0;
+          },
+        ),
+        SidebarXItem(
+          icon: Icons.search,
+          label: 'Search',
+          onTap: () {
+            arduinoModel.selectedPageIndex = 1;
+          },
+        ),
+        SidebarXItem(
+          icon: Icons.people,
+          label: 'People',
+          onTap: () {
+            arduinoModel.selectedPageIndex = 2;
+          },
+        ),
+      ],
+    );
+  }
+
+  String _getTitleByIndex(int index) {
+    switch (index) {
+      case 0:
+        return 'Home';
+      case 1:
+        return 'Search';
+      case 2:
+        return 'People';
+      case 3:
+        return 'Favorites';
+      case 4:
+        return 'Custom iconWidget';
+      case 5:
+        return 'Profile';
+      case 6:
+        return 'Settings';
+      default:
+        return 'Not found page';
+    }
   }
 }

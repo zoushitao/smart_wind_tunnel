@@ -79,8 +79,8 @@ class SerialConnectionButton extends StatelessWidget {
             ),
             const SizedBox(width: 25),
             arduinoModel.isConnected
-                ? disconnectButton(arduinoModel)
-                : connectButton(arduinoModel),
+                ? disconnectButton(arduinoModel, context)
+                : connectButton(arduinoModel, context),
           ],
         ),
         const Expanded(child: SizedBox()),
@@ -93,13 +93,22 @@ class SerialConnectionButton extends StatelessWidget {
     );
   }
 
-  ElevatedButton connectButton(SmartWindProvider arduinoModel) {
+  ElevatedButton connectButton(
+      SmartWindProvider arduinoModel, BuildContext context) {
     return ElevatedButton.icon(
       icon: const Icon(Icons.connecting_airports, size: 20),
       label: const Text("Connect "),
       onPressed: () {
         if (arduinoModel.leftPort == arduinoModel.rightPort) {
           //Error
+          _showConnectionErrorDialog(
+              context, "Left port can't be the same as right port");
+        } else if (arduinoModel.leftPort == "unavailable" ||
+            arduinoModel.rightPort == "unavailable") {
+          String errorString =
+              'Left Port: ${arduinoModel.leftPort}, Right Port:${arduinoModel.rightPort}';
+          _showConnectionErrorDialog(context,
+              "Uninitialized Serial Port : Please Retry.\n $errorString");
         } else {
           arduinoModel.connect();
         }
@@ -107,12 +116,34 @@ class SerialConnectionButton extends StatelessWidget {
     );
   }
 
-  ElevatedButton disconnectButton(SmartWindProvider arduinoModel) {
+  ElevatedButton disconnectButton(
+      SmartWindProvider arduinoModel, BuildContext context) {
     return ElevatedButton.icon(
       icon: const Icon(Icons.cancel, size: 20),
       label: const Text("Disonnect "),
       onPressed: () {
         arduinoModel.disconnect();
+      },
+    );
+  }
+
+  void _showConnectionErrorDialog(BuildContext context, String error) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+          content: Text(error),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('ok'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
       },
     );
   }
@@ -215,8 +246,8 @@ class _SerialCardState extends State<SerialCard> {
   void initState() {
     super.initState();
     // 设置初始状态
-    _leftSelectedDevice = "not ok ";
-    _rightSelectedDevice = "not ok";
+    _leftSelectedDevice = "unavailable";
+    _rightSelectedDevice = "unavailable";
   }
 
   //

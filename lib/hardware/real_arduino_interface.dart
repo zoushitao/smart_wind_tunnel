@@ -63,22 +63,41 @@ class RealArduinoInterface {
       _leftReader = SerialPortReader(_leftPort);
       _rightReader = SerialPortReader(_rightPort);
 
+      //left port reader
       int leftBufferIndex = 0;
-
       Stream<Uint8List> leftUpcomingData = _leftReader!.stream.map((data) {
         return data;
       });
-      List<int> buffer = [];
+      List<int> leftBuffer = [];
       leftUpcomingData.listen((data) {
-        buffer.addAll(data);
+        leftBuffer.addAll(data);
         leftBufferIndex += data.length;
-        print('Raw data: $data');
+        
 
         if (leftBufferIndex >= 5) {
-          String strBuffer = String.fromCharCodes(buffer);
-          print('Buffer: $strBuffer');
+          String strBuffer = String.fromCharCodes(leftBuffer);
+          print('Left Buffer: $strBuffer');
           leftBufferIndex = 0;
-          buffer = [];
+          leftBuffer = [];
+        }
+      });
+
+      //right port reader
+      int rightBufferIndex = 0;
+      Stream<Uint8List> rightUpcomingData = _rightReader!.stream.map((data) {
+        return data;
+      });
+      List<int> rightBuffer = [];
+      rightUpcomingData.listen((data) {
+        rightBuffer.addAll(data);
+        rightBufferIndex += data.length;
+        
+
+        if (rightBufferIndex >= 5) {
+          String strBuffer = String.fromCharCodes(rightBuffer);
+          print('Right Buffer: $strBuffer');
+          rightBufferIndex = 0;
+          rightBuffer = [];
         }
       });
     } catch (err) {

@@ -288,4 +288,15 @@ class SmartWindProvider extends ChangeNotifier {
 
     currentPredefinedMode = mode;
   }
+
+  int _selectedPageIndex = 0;
+  int get selectedPageIndex => _selectedPageIndex;
+
+  set selectedPageIndex(int val) {
+    _selectedPageIndex = val;
+    // 在 setter 中可以执行其他逻辑操作
+    // 比如触发界面重新构建
+    // 或者进行数据验证等
+    notifyListeners();
+  }
 }
