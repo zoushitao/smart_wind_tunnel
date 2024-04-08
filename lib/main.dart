@@ -9,7 +9,7 @@ import 'package:sidebarx/sidebarx.dart';
 //import pages
 import './pages/homepage.dart';
 import 'pages/monitorpage.dart';
-import 'pages/controlpage.dart';
+import 'pages/settings/controlpage.dart';
 import 'dart:async';
 
 Future<void> main() async {

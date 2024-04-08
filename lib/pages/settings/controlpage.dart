@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '/providers/arduino_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
+
 class ControlPage extends StatefulWidget {
   const ControlPage({super.key});
 
@@ -181,6 +182,10 @@ class _GustModeViewState extends State<GustModeView> {
     _gustLowerSlider = lower.toDouble();
     _gustPeriodSlider = period.toDouble();
 
+    return _gustSettingPad(arduinoModel);
+  }
+
+  ListView _gustSettingPad(SmartWindProvider arduinoModel) {
     return ListView(
       children: <Widget>[
         const SizedBox(height: 10),
@@ -240,29 +245,27 @@ class _GustModeViewState extends State<GustModeView> {
             const SizedBox(height: 20),
           ],
         ),
+        const SizedBox(height: 40),
         Row(
           children: [
             const SizedBox(width: 10),
             const Text("Period : "),
+            const SizedBox(width: 30),
             Expanded(
-                child: Slider(
-              value: _gustPeriodSlider,
-              min: 0.0,
-              max: 100.0,
-              divisions: 100,
-              label: 'Period(ms): ${_gustPeriodSlider.toInt()}',
-              onChanged: (newValue) {
-                setState(() {
-                  _gustPeriodSlider = newValue;
-                  arduinoModel.setGustMode(
-                      lowerLimit: _gustLowerSlider.toInt(),
-                      upperLimit: _gustUpperSlider.toInt(),
-                      periodMs: _gustPeriodSlider.toInt());
-                  //Do something Here
-                });
-              },
-            )),
-            const SizedBox(height: 20),
+              child: SpinBox(
+                min: 100,
+                max: 10000,
+                value: 0.25,
+                decimals: 0,
+                step: 1,
+                acceleration: 1,
+                decoration: InputDecoration(labelText: 'Ms'),
+                onChanged: (value) {
+                  print(value);
+                  //do something
+                },
+              ),
+            ),
           ],
         )
       ],
