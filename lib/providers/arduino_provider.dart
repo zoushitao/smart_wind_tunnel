@@ -52,13 +52,13 @@ class SmartWindProvider extends ChangeNotifier {
   final Map gustModeCongig = {
     'lowerLimit': 0,
     'upperLimit': MAX_VAL,
-    'period': 30
+    'period': 10000
   };
   final Map waveModeConfig = {
     'lowerLimit': 0,
     'upperLimit': MAX_VAL,
     'waveLength': 20,
-    'period':30
+    'period':10000
   };
 
   //Connection

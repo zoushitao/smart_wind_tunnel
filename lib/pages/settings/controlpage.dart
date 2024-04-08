@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '/providers/arduino_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
+import 'package:smart_wind_tunnel/pages/settings/charts.dart';
 
 class ControlPage extends StatefulWidget {
   const ControlPage({super.key});
@@ -164,7 +165,7 @@ class GustModeView extends StatefulWidget {
 class _GustModeViewState extends State<GustModeView> {
   double _gustUpperSlider = 0.0;
   double _gustLowerSlider = 0.0;
-  double _gustPeriodSlider = 0.0;
+  double _gustPeriodSpinBox = 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -173,16 +174,31 @@ class _GustModeViewState extends State<GustModeView> {
     try {
       lower = arduinoModel.gustModeCongig['lowerLimit'];
       upper = arduinoModel.gustModeCongig['upperLimit'];
-      period = arduinoModel.gustModeCongig['period'];
+      period = arduinoModel.gustModeCongig['period']; //unit : MS
       //print(arduinoModel.gustMode);
     } catch (e) {
       //
     }
     _gustUpperSlider = upper.toDouble();
     _gustLowerSlider = lower.toDouble();
-    _gustPeriodSlider = period.toDouble();
+    _gustPeriodSpinBox = period.toDouble() / 1000; //convert Ms to S
 
-    return _gustSettingPad(arduinoModel);
+    return Row(
+      children: [
+        Expanded(flex: 2, child: _gustSettingPad(arduinoModel)),
+        const SizedBox(
+          width: 10,
+        ),
+        const VerticalDivider(
+          color: Colors.grey,
+          width: 1,
+        ),
+        const SizedBox(
+          width: 10,
+        ),
+        const Expanded(flex: 1, child: SineLinechart())
+      ],
+    );
   }
 
   ListView _gustSettingPad(SmartWindProvider arduinoModel) {
@@ -209,10 +225,12 @@ class _GustModeViewState extends State<GustModeView> {
                 setState(() {
                   _gustUpperSlider = newValue;
                   //Do something Here
+                  double periodS = _gustPeriodSpinBox * 1000;
+                  int periodMs = periodS.toInt();
                   arduinoModel.setGustMode(
                       lowerLimit: _gustLowerSlider.toInt(),
                       upperLimit: _gustUpperSlider.toInt(),
-                      periodMs: _gustPeriodSlider.toInt());
+                      periodMs: periodMs);
                 });
               },
             )),
@@ -235,10 +253,12 @@ class _GustModeViewState extends State<GustModeView> {
                 setState(() {
                   _gustLowerSlider = newValue;
                   //Do something Here
+                  double periodS = _gustPeriodSpinBox * 1000;
+                  int periodMs = periodS.toInt();
                   arduinoModel.setGustMode(
                       lowerLimit: _gustLowerSlider.toInt(),
                       upperLimit: _gustUpperSlider.toInt(),
-                      periodMs: _gustPeriodSlider.toInt());
+                      periodMs: periodMs);
                 });
               },
             )),
@@ -249,20 +269,29 @@ class _GustModeViewState extends State<GustModeView> {
         Row(
           children: [
             const SizedBox(width: 10),
-            const Text("Period : "),
+            const Text("Period(second): "),
             const SizedBox(width: 30),
             Expanded(
               child: SpinBox(
-                min: 100,
-                max: 10000,
-                value: 0.25,
-                decimals: 0,
-                step: 1,
+                min: 1,
+                max: 60,
+                value: _gustPeriodSpinBox,
+                decimals: 1,
+                step: 0.1,
                 acceleration: 1,
-                decoration: InputDecoration(labelText: 'Ms'),
+                decoration: const InputDecoration(labelText: 'second'),
                 onChanged: (value) {
-                  print(value);
-                  //do something
+                  if (value > 60.0 || value < 1.0) {
+                    return;
+                  }
+                  _gustPeriodSpinBox = value;
+                  //Do something Here
+                  double periodS = _gustPeriodSpinBox * 1000;
+                  int periodMs = periodS.toInt();
+                  arduinoModel.setGustMode(
+                      lowerLimit: _gustLowerSlider.toInt(),
+                      upperLimit: _gustUpperSlider.toInt(),
+                      periodMs: periodMs);
                 },
               ),
             ),
