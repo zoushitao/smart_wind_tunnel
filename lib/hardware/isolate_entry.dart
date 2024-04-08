@@ -1,13 +1,13 @@
 import 'dart:isolate';
 import 'package:flutter/material.dart';
 
-import 'real_arduino_interface.dart';
+import 'hardware_interface.dart';
 import 'dart:convert';
 //childIsolate main
 
 //Gloabls
 
-final RealArduinoInterface _realArduino = RealArduinoInterface();
+final HardwareInterface _realArduino = HardwareInterface();
 
 Map? _config;
 String? _currentMode;

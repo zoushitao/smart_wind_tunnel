@@ -21,6 +21,8 @@ dependencies:
   flutter_libserialport: ^0.3.0
   window_manager: ^0.3.8
   sidebarx: ^0.16.2
+  fl_chart: ^0.67.0
+  flutter_spinbox: ^0.13.1
   
 
 

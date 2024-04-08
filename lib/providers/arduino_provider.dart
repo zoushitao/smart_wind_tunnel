@@ -1,19 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'dart:isolate';
-import '../hardware/arduino.dart';
+import '../hardware/isolate_entry.dart';
 import 'dart:convert';
-import 'dart:convert';
+
 //import arduino hardware serial port interface
-import '../hardware/real_arduino_interface.dart';
+import '../hardware/hardware_interface.dart';
 
 // 用来储存和管理风扇的状态
-class VirtualArduinoState {
+class VirtualHardwareState {
   late List<List<int>> _matrix;
   //getter
   List<List<int>> get matrix => _matrix;
 
-  VirtualArduinoState() {
+  VirtualHardwareState() {
     int numRows = 40;
     int numCols = 40;
 
@@ -38,18 +38,28 @@ class VirtualArduinoState {
 
 class SmartWindProvider extends ChangeNotifier {
   //virtual arduino 用来管理虚拟风扇的数据
-  final VirtualArduinoState _virtualArduino = VirtualArduinoState();
-  VirtualArduinoState get virtualArduino => _virtualArduino;
+  final VirtualHardwareState _virtualArduino = VirtualHardwareState();
+  VirtualHardwareState get virtualArduino => _virtualArduino;
 
   //arduino硬件管理
-  final RealArduinoInterface _realArduino = RealArduinoInterface();
+  final HardwareInterface _realArduino = HardwareInterface();
 
   //constants
   static const MAX_VAL = 4095;
 
   //settings 保存predefined mode的设置
-  final Map evenMode = {'value': 0};
-  final Map gustMode = {'lowerLimit': 0, 'upperLimit': MAX_VAL, 'period': 30};
+  final Map evenModeConfig = {'value': 0};
+  final Map gustModeCongig = {
+    'lowerLimit': 0,
+    'upperLimit': MAX_VAL,
+    'period': 30
+  };
+  final Map waveModeConfig = {
+    'lowerLimit': 0,
+    'upperLimit': MAX_VAL,
+    'waveLength': 20,
+    'period':30
+  };
 
   //Connection
   bool _isConnected = false;
@@ -231,7 +241,7 @@ class SmartWindProvider extends ChangeNotifier {
   }
 
   void setEvenMode(int val) {
-    evenMode['value'] = val;
+    evenModeConfig['value'] = val;
     notifyListeners();
   }
 
@@ -239,9 +249,9 @@ class SmartWindProvider extends ChangeNotifier {
       {required int lowerLimit,
       required int upperLimit,
       required int periodMs}) {
-    gustMode['lowerLimit'] = lowerLimit;
-    gustMode['upperLimit'] = upperLimit;
-    gustMode['period'] = periodMs;
+    gustModeCongig['lowerLimit'] = lowerLimit;
+    gustModeCongig['upperLimit'] = upperLimit;
+    gustModeCongig['period'] = periodMs;
   }
 
   void launch() {
@@ -252,7 +262,7 @@ class SmartWindProvider extends ChangeNotifier {
       throw "It's still under development ... choose another one";
     }
     //upload config
-    Map config = {'even': evenMode, 'gust': gustMode};
+    Map config = {'even': evenModeConfig, 'gust': gustModeCongig};
     Map instruction = {'instruction': 'configUpdate', 'config': config};
     String instructionJsonString = json.encode(instruction);
     _commands.send(instructionJsonString);
@@ -269,7 +279,7 @@ class SmartWindProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updatePatter(String pattern) {
+  void updatePattern(String pattern) {
     if (!_patternList.contains(pattern)) {
       //error handle
       return;
@@ -299,4 +309,5 @@ class SmartWindProvider extends ChangeNotifier {
     // 或者进行数据验证等
     notifyListeners();
   }
+  
 }

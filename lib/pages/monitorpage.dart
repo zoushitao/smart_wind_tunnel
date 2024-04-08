@@ -445,7 +445,7 @@ class _ControlPadState extends State<ControlPad> {
                       //update pattern
 
                       arduinoModel
-                          .updatePatter(_patternList[_selectedPattern!]);
+                          .updatePattern(_patternList[_selectedPattern!]);
                     });
                   },
                 );

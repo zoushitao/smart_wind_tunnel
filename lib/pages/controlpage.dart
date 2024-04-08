@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '/providers/arduino_provider.dart';
 import 'package:provider/provider.dart';
-
+import 'package:flutter_spinbox/flutter_spinbox.dart';
 class ControlPage extends StatefulWidget {
   const ControlPage({super.key});
 
@@ -68,29 +68,25 @@ class _ModeSettingsWidgetState extends State<ModeSettingsWidget> {
               ),
               Tab(
                 text: 'Sheer Mode',
-                icon: Icon(Icons.window),
+                icon: Icon(Icons.wind_power),
               ),
               Tab(
-                text: 'Tab 4',
-                icon: Icon(Icons.tab),
+                text: 'Wave Mode',
+                icon: Icon(Icons.wind_power),
               ),
             ],
           ),
         ),
-        body: TabBarView(
+        body: const TabBarView(
           children: [
             // The first tab
-            const EvenModeView(),
+            EvenModeView(),
             // The second tab
-            const GustModeView(),
+            GustModeView(),
             // The third tab
-            const SheerModeView(),
+            SheerModeView(),
             // The fourth tab
-            Container(
-              child: Center(
-                child: Text('Tab 4 Content'),
-              ),
-            ),
+            WaveModeView()
           ],
         ),
       ),
@@ -116,7 +112,7 @@ class _EvenModeViewState extends State<EvenModeView> {
   @override
   Widget build(BuildContext context) {
     final arduinoModel = Provider.of<SmartWindProvider>(context);
-    int val = arduinoModel.evenMode['value'];
+    int val = arduinoModel.evenModeConfig['value'];
 
     _evenSliderValue = val.toDouble();
     return ListView(
@@ -165,25 +161,25 @@ class GustModeView extends StatefulWidget {
 }
 
 class _GustModeViewState extends State<GustModeView> {
-  double _gustUpperValue = 0.0;
-  double _gustLowerValue = 0.0;
-  double _gustPeriodValue = 0.0;
+  double _gustUpperSlider = 0.0;
+  double _gustLowerSlider = 0.0;
+  double _gustPeriodSlider = 0.0;
 
   @override
   Widget build(BuildContext context) {
     final arduinoModel = Provider.of<SmartWindProvider>(context);
     late int lower, upper, period;
     try {
-      lower = arduinoModel.gustMode['lowerLimit'];
-      upper = arduinoModel.gustMode['upperLimit'];
-      period = arduinoModel.gustMode['period'];
+      lower = arduinoModel.gustModeCongig['lowerLimit'];
+      upper = arduinoModel.gustModeCongig['upperLimit'];
+      period = arduinoModel.gustModeCongig['period'];
       //print(arduinoModel.gustMode);
     } catch (e) {
       //
     }
-    _gustUpperValue = upper.toDouble();
-    _gustLowerValue = lower.toDouble();
-    _gustPeriodValue = period.toDouble();
+    _gustUpperSlider = upper.toDouble();
+    _gustLowerSlider = lower.toDouble();
+    _gustPeriodSlider = period.toDouble();
 
     return ListView(
       children: <Widget>[
@@ -199,19 +195,19 @@ class _GustModeViewState extends State<GustModeView> {
             const Text("Upper Limit : "),
             Expanded(
                 child: Slider(
-              value: _gustUpperValue,
+              value: _gustUpperSlider,
               min: 0.0,
               max: 4095.0,
               divisions: 4095,
-              label: 'Upper Limit: ${_gustUpperValue.toInt()}',
+              label: 'Upper Limit: ${_gustUpperSlider.toInt()}',
               onChanged: (newValue) {
                 setState(() {
-                  _gustUpperValue = newValue;
+                  _gustUpperSlider = newValue;
                   //Do something Here
                   arduinoModel.setGustMode(
-                      lowerLimit: _gustLowerValue.toInt(),
-                      upperLimit: _gustUpperValue.toInt(),
-                      periodMs: _gustPeriodValue.toInt());
+                      lowerLimit: _gustLowerSlider.toInt(),
+                      upperLimit: _gustUpperSlider.toInt(),
+                      periodMs: _gustPeriodSlider.toInt());
                 });
               },
             )),
@@ -224,19 +220,20 @@ class _GustModeViewState extends State<GustModeView> {
             const Text("Lower Limit :  : "),
             Expanded(
                 child: Slider(
-              value: _gustLowerValue,
+              value: _gustLowerSlider,
               min: 0.0,
               max: 4095.0,
               divisions: 4095,
-              label: 'Lower Limit: ${_gustLowerValue.toInt()}',
+              label: 'Lower Limit: ${_gustLowerSlider.toInt()}',
+              secondaryTrackValue: _gustUpperSlider,
               onChanged: (newValue) {
                 setState(() {
-                  _gustLowerValue = newValue;
+                  _gustLowerSlider = newValue;
                   //Do something Here
                   arduinoModel.setGustMode(
-                      lowerLimit: _gustLowerValue.toInt(),
-                      upperLimit: _gustUpperValue.toInt(),
-                      periodMs: _gustPeriodValue.toInt());
+                      lowerLimit: _gustLowerSlider.toInt(),
+                      upperLimit: _gustUpperSlider.toInt(),
+                      periodMs: _gustPeriodSlider.toInt());
                 });
               },
             )),
@@ -249,18 +246,18 @@ class _GustModeViewState extends State<GustModeView> {
             const Text("Period : "),
             Expanded(
                 child: Slider(
-              value: _gustPeriodValue,
+              value: _gustPeriodSlider,
               min: 0.0,
               max: 100.0,
               divisions: 100,
-              label: 'Period(ms): ${_gustPeriodValue.toInt()}',
+              label: 'Period(ms): ${_gustPeriodSlider.toInt()}',
               onChanged: (newValue) {
                 setState(() {
-                  _gustPeriodValue = newValue;
+                  _gustPeriodSlider = newValue;
                   arduinoModel.setGustMode(
-                      lowerLimit: _gustLowerValue.toInt(),
-                      upperLimit: _gustUpperValue.toInt(),
-                      periodMs: _gustPeriodValue.toInt());
+                      lowerLimit: _gustLowerSlider.toInt(),
+                      upperLimit: _gustUpperSlider.toInt(),
+                      periodMs: _gustPeriodSlider.toInt());
                   //Do something Here
                 });
               },
@@ -291,7 +288,7 @@ class _SheerModeViewState extends State<SheerModeView> {
   @override
   Widget build(BuildContext context) {
     final arduinoModel = Provider.of<SmartWindProvider>(context);
-    int val = arduinoModel.evenMode['value'];
+    int val = arduinoModel.evenModeConfig['value'];
 
     _evenSliderValue = val.toDouble();
     return ListView(
@@ -329,5 +326,58 @@ class _SheerModeViewState extends State<SheerModeView> {
         )
       ],
     );
+  }
+}
+
+class WaveModeView extends StatefulWidget {
+  const WaveModeView({Key? key}) : super(key: key);
+
+  @override
+  _WaveModeViewState createState() => _WaveModeViewState();
+}
+
+class _WaveModeViewState extends State<WaveModeView> {
+  double _waveUpperSlider = 0.0;
+  double _waveLowerSlider = 0.0;
+  double _waveLengthSlider = 0.0;
+  @override
+  Widget build(BuildContext context) {
+    final arduinoModel = Provider.of<SmartWindProvider>(context);
+    return ListView(
+      children: <Widget>[
+        const SizedBox(height: 10),
+        const ListTile(
+            //leading: Icon(Icons.pentagon),
+            title: Text("Tips"),
+            subtitle: Text(
+              "Configure will be automatically saved ",
+              style:
+                  TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
+            )),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            const SizedBox(width: 10),
+            const Text("Value : "),
+            Expanded(
+                child: Slider(
+              value: _waveUpperSlider,
+              min: 0,
+              max: 4095,
+              divisions: 4095,
+              label: 'Value: ${_waveUpperSlider.toInt()}',
+              onChanged: (newValue) {
+                setState(() {
+                  _waveUpperSlider = newValue;
+                  //do something else
+                  //arduinoModel.setEvenMode(newValue.toInt());
+                });
+              },
+            )),
+          ],
+        )
+      ],
+    );
+    ;
   }
 }

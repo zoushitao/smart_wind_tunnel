@@ -2,7 +2,7 @@ import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 
-class RealArduinoInterface {
+class HardwareInterface {
   late SerialPort _leftPort;
   late SerialPort _rightPort;
   //readers
@@ -72,7 +72,6 @@ class RealArduinoInterface {
       leftUpcomingData.listen((data) {
         leftBuffer.addAll(data);
         leftBufferIndex += data.length;
-        
 
         if (leftBufferIndex >= 5) {
           String strBuffer = String.fromCharCodes(leftBuffer);
@@ -91,7 +90,6 @@ class RealArduinoInterface {
       rightUpcomingData.listen((data) {
         rightBuffer.addAll(data);
         rightBufferIndex += data.length;
-        
 
         if (rightBufferIndex >= 5) {
           String strBuffer = String.fromCharCodes(rightBuffer);
@@ -120,6 +118,30 @@ class RealArduinoInterface {
   }
 
   Future<void> setAll(int val) async {
+    if (!(_leftPort.isOpen && _rightPort.isOpen)) {
+      print("error when setting all because connection failed");
+      return;
+    }
+
+    // 将字符串转换为 ASCII 码的 Uint8List 列表
+
+    try {
+      String str = 'a:$val';
+      List<int> asciiList = [];
+      asciiList.addAll(str.codeUnits);
+      asciiList.add(10); //添加换行符
+      Uint8List bytes = Uint8List.fromList(asciiList);
+      print(bytes);
+
+      _leftPort.write(bytes);
+
+      _rightPort.write(bytes);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> setRow(int row, int val) async {
     if (!(_leftPort.isOpen && _rightPort.isOpen)) {
       print("error when setting all because connection failed");
       return;
