@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
-import '../../providers/smart_wind_provider.dart';
+import '../../providers/arduino_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 

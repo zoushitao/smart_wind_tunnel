@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 //import providers
-import 'providers/smart_wind_provider.dart';
+import 'providers/arduino_provider.dart';
 
 // third party lib
 import 'package:window_manager/window_manager.dart';

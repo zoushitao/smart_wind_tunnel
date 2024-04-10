@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../providers/smart_wind_provider.dart';
+import '../../providers/arduino_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
 import 'package:smart_wind_tunnel/pages/settings/charts.dart';

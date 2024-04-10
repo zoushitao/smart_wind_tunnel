@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../providers/smart_wind_provider.dart';
+import '../../providers/arduino_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
 import 'package:smart_wind_tunnel/pages/settings/charts.dart';
@@ -14,8 +14,9 @@ class WaveModeView extends StatefulWidget {
 class _WaveModeViewState extends State<WaveModeView> {
   double _waveUpperSlider = 0.0;
   double _waveLowerSlider = 0.0;
-  int _waveLengthSlider = 0;
-  double _wavePeriodSpinBox = 0.0;
+  int _waveLengthSlider = 10;
+  double _wavePeriodSpinBox = 6.0;
+  bool _waveOrientationSwitch = true;
   @override
   Widget build(BuildContext context) {
     final arduinoModel = Provider.of<SmartWindProvider>(context);
@@ -93,72 +94,108 @@ class _WaveModeViewState extends State<WaveModeView> {
           ],
         ),
         const SizedBox(height: 40),
-        Row(
-          children: [
-            const SizedBox(width: 10),
-            const Text("Period: "),
-            const SizedBox(width: 30),
-            Expanded(
-              child: SpinBox(
-                min: 1,
-                max: 60,
-                value: _waveLengthSlider.toDouble(),
-                decimals: 1,
-                step: 0.1,
-                acceleration: 1,
-                decoration: const InputDecoration(labelText: 'second(s)'),
-                onChanged: (value) {
-                  if (value > 60.0 || value < 1.0) {
-                    return;
-                  }
-                  _waveLengthSlider = value.toInt();
-                  //Do something Here
-                  double periodS = _wavePeriodSpinBox * 1000;
-                  int periodMs = periodS.toInt();
-                  arduinoModel.setWaveMode(
-                      lowerLimit: _waveLowerSlider.toInt(),
-                      upperLimit: _waveUpperSlider.toInt(),
-                      periodMs: periodMs,
-                      waveLength: _waveLengthSlider);
-                },
-              ),
-            ),
-          ],
-        ),
+        _PeriodRow(arduinoModel),
         const SizedBox(height: 40),
-        Row(
-          children: [
-            const SizedBox(width: 10),
-            const Text("Wave Length (in row or column): "),
-            const SizedBox(width: 30),
-            Expanded(
-              child: SpinBox(
-                min: 4,
-                max: 40,
-                value: _wavePeriodSpinBox,
-                decimals: 1,
-                step: 1,
-                acceleration: 0,
-                decoration: const InputDecoration(labelText: 'row(s)'),
-                onChanged: (value) {
-                  if (value > 60.0 || value < 1.0) {
-                    return;
-                  }
-                  _wavePeriodSpinBox = value;
-                  //Do something Here
-                  double periodS = _wavePeriodSpinBox * 1000;
-                  int periodMs = periodS.toInt();
-                  arduinoModel.setWaveMode(
-                      lowerLimit: _waveLowerSlider.toInt(),
-                      upperLimit: _waveUpperSlider.toInt(),
-                      periodMs: periodMs,
-                      waveLength: _waveLengthSlider);
-                },
-              ),
-            ),
-          ],
-        ),
+        _waveLengthRow(arduinoModel),
+        const SizedBox(height: 40),
+        _orientationRow()
       ],
     );
+  }
+
+  Row _PeriodRow(SmartWindProvider arduinoModel) {
+    return Row(
+        children: [
+          const SizedBox(width: 10),
+          const Text("Period: "),
+          const SizedBox(width: 30),
+          Expanded(
+            child: SpinBox(
+              min: 1,
+              max: 60,
+              value: _waveLengthSlider.toDouble(),
+              decimals: 1,
+              step: 0.1,
+              acceleration: 1,
+              decoration: const InputDecoration(labelText: 'second(s)'),
+              onChanged: (value) {
+                if (value > 60.0 || value < 1.0) {
+                  return;
+                }
+                _waveLengthSlider = value.toInt();
+                //Do something Here
+                double periodS = _wavePeriodSpinBox * 1000;
+                int periodMs = periodS.toInt();
+                arduinoModel.setWaveMode(
+                    lowerLimit: _waveLowerSlider.toInt(),
+                    upperLimit: _waveUpperSlider.toInt(),
+                    periodMs: periodMs,
+                    waveLength: _waveLengthSlider);
+              },
+            ),
+          ),
+        ],
+      );
+  }
+
+  Row _waveLengthRow(SmartWindProvider arduinoModel) {
+    return Row(
+        children: [
+          const SizedBox(width: 10),
+          const Text("Wave Length (in row or column): "),
+          const SizedBox(width: 30),
+          Expanded(
+            child: SpinBox(
+              min: 4,
+              max: 40,
+              value: _wavePeriodSpinBox,
+              decimals: 0,
+              step: 1,
+              acceleration: 0,
+              decoration: const InputDecoration(labelText: 'row(s)'),
+              onChanged: (value) {
+                if (value > 40.0 || value < 4.0) {
+                  return;
+                }
+                _wavePeriodSpinBox = value;
+                //Do something Here
+                double periodS = _wavePeriodSpinBox * 1000;
+                int periodMs = periodS.toInt();
+                arduinoModel.setWaveMode(
+                    lowerLimit: _waveLowerSlider.toInt(),
+                    upperLimit: _waveUpperSlider.toInt(),
+                    periodMs: periodMs,
+                    waveLength: _waveLengthSlider);
+              },
+            ),
+          ),
+        ],
+      );
+  }
+
+  Row _orientationRow() {
+    return Row(
+        children: [
+          const SizedBox(
+            width: 10,
+          ),
+          const Text("Orientation: "),
+          const SizedBox(width: 20),
+          Switch(
+              value: _waveOrientationSwitch,
+              activeColor: Colors.blueAccent,
+              onChanged: (bool value) {
+                setState(() {
+                  _waveOrientationSwitch = value;
+                });
+              }),
+          const SizedBox(width: 30),
+          Icon(
+            _waveOrientationSwitch ? Icons.arrow_downward : Icons.fork_right,
+            color: Colors.blueAccent,
+          ),
+          Text(_waveOrientationSwitch ? "Up to Down" : "Left to Right")
+        ],
+      );
   }
 }

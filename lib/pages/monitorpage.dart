@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 //import providers
-import '../providers/smart_wind_provider.dart';
+import '../providers/arduino_provider.dart';
 import 'package:provider/provider.dart';
 
 class ViewPage extends StatefulWidget {
