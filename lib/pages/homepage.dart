@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'dart:ui';
 //import providers
-import '/providers/arduino_provider.dart';
+import '../providers/smart_wind_provider.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -526,3 +526,4 @@ class TipsWidget extends StatelessWidget {
     );
   }
 }
+

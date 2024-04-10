@@ -141,7 +141,6 @@ void _setAll(int val) {
 }
 
 //SingleExamplemode
-
 class GustModeRunner {
   static final GustModeRunner _singleton = GustModeRunner._internal();
 
@@ -191,4 +190,15 @@ class GustModeRunner {
     _setAll(value);
     print("Run value:$value");
   }
+}
+
+class WaveModeRunner{
+  static final WaveModeRunner _singleton = WaveModeRunner._internal();
+
+  factory WaveModeRunner() {
+    return _singleton;
+  }
+
+  WaveModeRunner._internal();
+  
 }

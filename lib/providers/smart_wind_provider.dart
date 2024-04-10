@@ -49,7 +49,7 @@ class SmartWindProvider extends ChangeNotifier {
 
   //settings 保存predefined mode的设置
   final Map evenModeConfig = {'value': 0};
-  final Map gustModeCongig = {
+  final Map gustModeConfig = {
     'lowerLimit': 0,
     'upperLimit': MAX_VAL,
     'period': 10000
@@ -58,7 +58,7 @@ class SmartWindProvider extends ChangeNotifier {
     'lowerLimit': 0,
     'upperLimit': MAX_VAL,
     'waveLength': 20,
-    'period':10000
+    'period': 10000
   };
 
   //Connection
@@ -249,9 +249,20 @@ class SmartWindProvider extends ChangeNotifier {
       {required int lowerLimit,
       required int upperLimit,
       required int periodMs}) {
-    gustModeCongig['lowerLimit'] = lowerLimit;
-    gustModeCongig['upperLimit'] = upperLimit;
-    gustModeCongig['period'] = periodMs;
+    gustModeConfig['lowerLimit'] = lowerLimit;
+    gustModeConfig['upperLimit'] = upperLimit;
+    gustModeConfig['period'] = periodMs;
+  }
+
+  void setWaveMode(
+      {required int lowerLimit,
+      required int upperLimit,
+      required int periodMs,
+      required int waveLength}) {
+    waveModeConfig['lowerLimit'] = lowerLimit;
+    waveModeConfig['upperLimit'] = upperLimit;
+    waveModeConfig['period'] = periodMs;
+    waveModeConfig['waveLength'] = waveLength;
   }
 
   void launch() {
@@ -262,7 +273,7 @@ class SmartWindProvider extends ChangeNotifier {
       throw "It's still under development ... choose another one";
     }
     //upload config
-    Map config = {'even': evenModeConfig, 'gust': gustModeCongig};
+    Map config = {'even': evenModeConfig, 'gust': gustModeConfig};
     Map instruction = {'instruction': 'configUpdate', 'config': config};
     String instructionJsonString = json.encode(instruction);
     _commands.send(instructionJsonString);
@@ -309,5 +320,4 @@ class SmartWindProvider extends ChangeNotifier {
     // 或者进行数据验证等
     notifyListeners();
   }
-  
 }

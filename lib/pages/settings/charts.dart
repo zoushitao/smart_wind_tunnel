@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
-import '/providers/arduino_provider.dart';
+import '../../providers/smart_wind_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
@@ -44,7 +44,7 @@ class _SineLinechartState extends State<SineLinechart> {
   @override
   Widget build(BuildContext context) {
     final arduinoModel = Provider.of<SmartWindProvider>(context);
-    double PeriodMS = arduinoModel.gustModeCongig['period'].toDouble();
+    double PeriodMS = arduinoModel.gustModeConfig['period'].toDouble();
     step = 2 * math.pi / (PeriodMS / 40); //40 is the timer speed
     double timeS = xValue / step / 40 * math.pi / 2;
     double cosVal = 0.0;
