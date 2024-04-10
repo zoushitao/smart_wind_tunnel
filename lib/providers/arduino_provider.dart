@@ -58,7 +58,8 @@ class SmartWindProvider extends ChangeNotifier {
     'lowerLimit': 0,
     'upperLimit': MAX_VAL,
     'waveLength': 20,
-    'period': 10000
+    'period': 10000,
+    'orientation': 'row'
   };
 
   //Connection
@@ -258,11 +259,14 @@ class SmartWindProvider extends ChangeNotifier {
       {required int lowerLimit,
       required int upperLimit,
       required int periodMs,
-      required int waveLength}) {
+      required int waveLength,
+      required String orientation}) {
     waveModeConfig['lowerLimit'] = lowerLimit;
     waveModeConfig['upperLimit'] = upperLimit;
     waveModeConfig['period'] = periodMs;
     waveModeConfig['waveLength'] = waveLength;
+    waveModeConfig['orientation'] = orientation;
+    print(waveModeConfig);
   }
 
   void launch() {

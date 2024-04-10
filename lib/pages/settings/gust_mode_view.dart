@@ -72,6 +72,9 @@ class _GustModeViewState extends State<GustModeView> {
               label: 'Upper Limit: ${_gustUpperSlider.toInt()}',
               onChanged: (newValue) {
                 setState(() {
+                  if (newValue <= _gustLowerSlider) {
+                    return;
+                  }
                   _gustUpperSlider = newValue;
                   //Do something Here
                   double periodS = _gustPeriodSpinBox * 1000;
