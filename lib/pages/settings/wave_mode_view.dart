@@ -144,7 +144,7 @@ class _WaveModeViewState extends State<WaveModeView> {
           child: SpinBox(
             min: 1,
             max: 60,
-            value: _waveLengthSlider.toDouble(),
+            value: _wavePeriodSpinBox,
             decimals: 1,
             step: 0.1,
             acceleration: 1,
@@ -153,7 +153,7 @@ class _WaveModeViewState extends State<WaveModeView> {
               if (value > 60.0 || value < 1.0) {
                 return;
               }
-              _waveLengthSlider = value.toInt();
+              _wavePeriodSpinBox = value;
               //Do something Here
               double periodS = _wavePeriodSpinBox * 1000;
               int periodMs = periodS.toInt();

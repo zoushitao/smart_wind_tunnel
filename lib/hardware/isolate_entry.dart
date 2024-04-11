@@ -1,6 +1,6 @@
 import 'dart:isolate';
 import 'package:flutter/material.dart';
-
+import 'dart:math' as math;
 import 'hardware_interface.dart';
 import 'dart:convert';
 //childIsolate main
@@ -117,6 +117,7 @@ void _updateConfig(Map message) {
   _config = message['config'];
   Map? gustConfig = _config?['gust'];
 
+  //update gust mode configure
   GustModeRunner gustModeRunner = GustModeRunner();
   print("update config : $gustConfig");
   gustModeRunner.init(
@@ -124,8 +125,7 @@ void _updateConfig(Map message) {
       lowerLimit: gustConfig['lowerLimit'],
       periodMs: gustConfig['period']);
 
-  print("config updated");
-  print(_config.toString());
+  //update wave mode configure
 }
 
 void _launch(Map message) {
@@ -140,6 +140,30 @@ void _setAll(int val) {
   _sendPort.send(json.encode(instruction));
 }
 
+void _setRow(int val, int row) {
+  if (val >= 4095 || val <= 0) {
+    return;
+  }
+
+  if (row > 39 || row < 0) {
+    return;
+  }
+  Map instruction = {'instruction': 'setRow', 'value': val, 'rowID': row};
+  _sendPort.send(json.encode(instruction));
+}
+
+void _setCol(int val, int col) {
+  if (val >= 4095 || val <= 0) {
+    return;
+  }
+
+  if (col > 39 || col < 0) {
+    return;
+  }
+  Map instruction = {'instruction': 'setCol', 'value': val, 'colID': col};
+  _sendPort.send(json.encode(instruction));
+}
+
 //SingleExamplemode
 class GustModeRunner {
   static final GustModeRunner _singleton = GustModeRunner._internal();
@@ -150,49 +174,36 @@ class GustModeRunner {
 
   GustModeRunner._internal();
 
-  static int _increment = 100;
-  static int value = 0;
-  static int lower = 0, upper = 4095;
+  static double step = 0.0, xval = 0.0;
+  static double lower = 0, upper = 4095;
+  static int delay_ms = 100;
   static bool _initialized = false;
-  static bool _flip = false;
-  int delay = 20;
+
+  
   void init(
       {required int lowerLimit,
       required int upperLimit,
       required int periodMs}) {
-    int steps = periodMs ~/ delay;
-    _increment = (upperLimit - lowerLimit) ~/ steps;
-    value = lowerLimit;
-    lower = lowerLimit;
-    upper = upperLimit;
+    step = 2.0 * math.pi / (periodMs.toDouble() / delay_ms.toDouble());
+    lower = lowerLimit.toDouble();
+    upper = upperLimit.toDouble();
     _initialized = true;
     print("init gust");
   }
 
   void run() {
-    print("Run value:$value increment:$_increment init:$_initialized");
-
-    //if (!_initialized) return;
-    if (_flip == false) {
-      value += _increment;
-      if (value > 4095 || value > upper) {
-        value = upper;
-        _flip = !_flip;
-      }
-    } else {
-      value -= _increment;
-      if (value < 0 || value < lower) {
-        value = lower;
-        _flip = !_flip;
-      }
-    }
-
-    _setAll(value);
+    xval += step;
+    double value =
+        math.sin(xval) * (upper - lower) / 2.0 + (upper + lower) / 2.0;
+    _setAll(value.toInt());
+    Future.delayed(Duration(milliseconds: delay_ms), () {
+      print('延迟操作完成');
+    });
     print("Run value:$value");
   }
 }
 
-class WaveModeRunner{
+class WaveModeRunner {
   static final WaveModeRunner _singleton = WaveModeRunner._internal();
 
   factory WaveModeRunner() {
@@ -200,5 +211,11 @@ class WaveModeRunner{
   }
 
   WaveModeRunner._internal();
-  
+  int rowSettingDelay = 10; //unit:milliseond
+
+  List<int> waveList = <int>[];
+  void init(
+      {required int lowerLimit,
+      required int upperLimit,
+      required int periodMs}) {}
 }

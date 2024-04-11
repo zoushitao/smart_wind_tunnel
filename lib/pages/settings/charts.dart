@@ -69,11 +69,13 @@ class _SineLinechartState extends State<SineLinechart> {
   Widget build(BuildContext context) {
     final arduinoModel = Provider.of<SmartWindProvider>(context);
     double PeriodMS = arduinoModel.gustModeConfig['period'].toDouble();
+    double upper = arduinoModel.gustModeConfig['upperLimit'].toDouble();
+    double lower = arduinoModel.gustModeConfig['lowerLimit'].toDouble();
     step = 2 * math.pi / (PeriodMS / 40); //40 is the timer speed
     double timeS = xValue / step / 40 * math.pi / 2;
     double cosVal = 0.0;
     try {
-      cosVal = cosPoints.last.y * (4095 / 2) + 4095 / 2;
+      cosVal = cosPoints.last.y * (upper - lower) / 2 + (upper + lower) / 2;
     } catch (e) {
       print(e);
     }
@@ -92,7 +94,7 @@ class _SineLinechartState extends State<SineLinechart> {
                 ),
               ),
               Text(
-                'PWM(0-4097: ${cosVal.toStringAsFixed(1)}',
+                'PWM(0-100%): ${(cosVal / 4095 * 100).toStringAsFixed(1)}',
                 style: TextStyle(
                   color: widget.cosColor,
                   fontSize: 18,
@@ -190,8 +192,10 @@ class _waveChartState extends State<waveChart> {
 
   @override
   Widget build(BuildContext context) {
-    //final arduinoModel = Provider.of<SmartWindProvider>(context);
-
+    final arduinoModel = Provider.of<SmartWindProvider>(context);
+    step =
+        arduinoModel.waveModeConfig['period'].toDouble() / 40; //40 is the timer
+    step = 2 * math.pi / step;
     return BarChart(
       BarChartData(
         barTouchData: barTouchData,

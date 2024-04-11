@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:smart_wind_tunnel/providers/virtual_hardware_state.dart';
 import 'dart:async';
 import 'dart:isolate';
 import '../hardware/isolate_entry.dart';
@@ -6,35 +7,6 @@ import 'dart:convert';
 
 //import arduino hardware serial port interface
 import '../hardware/hardware_interface.dart';
-
-// 用来储存和管理风扇的状态
-class VirtualHardwareState {
-  late List<List<int>> _matrix;
-  //getter
-  List<List<int>> get matrix => _matrix;
-
-  VirtualHardwareState() {
-    int numRows = 40;
-    int numCols = 40;
-
-    _matrix = List.generate(
-      numRows,
-      (row) => List<int>.filled(numCols, 0),
-    );
-  }
-
-  void setAll(int val) {
-    // 获取矩阵的行数和列数
-    int numRows = _matrix.length;
-    int numCols = _matrix[0].length;
-    // 迭代遍历矩阵
-    for (int i = 0; i < numRows; i++) {
-      for (int j = 0; j < numCols; j++) {
-        _matrix[i][j] = val;
-      }
-    }
-  }
-}
 
 class SmartWindProvider extends ChangeNotifier {
   //virtual arduino 用来管理虚拟风扇的数据
@@ -231,7 +203,31 @@ class SmartWindProvider extends ChangeNotifier {
     switch (jsonMap['instruction']) {
       case 'setAll':
         _setAll(jsonMap);
+      case 'setRow':
+        _setRow(jsonMap);
+      case 'setCol':
+        _setCol(jsonMap);
     }
+  }
+
+  void _setRow(Map jsonMap) {
+    if (!jsonMap.containsKey('rowID')) {
+      print('error');
+    }
+    int val = jsonMap['value'];
+    int row = jsonMap['rowID'];
+    _virtualArduino.setRow(val, row);
+    notifyListeners();
+  }
+
+  void _setCol(Map jsonMap) {
+    if (!jsonMap.containsKey('colID')) {
+      print('error');
+    }
+    int val = jsonMap['value'];
+    int col = jsonMap['colID'];
+    _virtualArduino.setCol(val, col);
+    notifyListeners();
   }
 
   void _setAll(Map jsonMap) {
@@ -277,7 +273,7 @@ class SmartWindProvider extends ChangeNotifier {
       throw "It's still under development ... choose another one";
     }
     //upload config
-    Map config = {'even': evenModeConfig, 'gust': gustModeConfig};
+    Map config = {'even': evenModeConfig, 'gust': gustModeConfig,'wave':waveModeConfig};
     Map instruction = {'instruction': 'configUpdate', 'config': config};
     String instructionJsonString = json.encode(instruction);
     _commands.send(instructionJsonString);
