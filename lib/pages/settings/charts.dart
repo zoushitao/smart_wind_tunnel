@@ -92,7 +92,7 @@ class _SineLinechartState extends State<SineLinechart> {
                 ),
               ),
               Text(
-                'cos: ${cosVal.toStringAsFixed(1)}',
+                'PWM(0-4097: ${cosVal.toStringAsFixed(1)}',
                 style: TextStyle(
                   color: widget.cosColor,
                   fontSize: 18,

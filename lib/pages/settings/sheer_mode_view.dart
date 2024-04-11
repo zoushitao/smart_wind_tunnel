@@ -146,9 +146,9 @@ class _ReorderableExampleState extends State<ReorderableExample> {
         ListTile(
           key: Key('$index'),
           leading: IconButton(
-            icon: Icon(Icons.remove), // 图标
+            icon: Icon(Icons.remove), // Icon
             onPressed: () {
-              // 处理按钮点击事件
+              // Event Handling
               print('Button clicked');
             },
           ),
