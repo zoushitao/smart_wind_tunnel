@@ -5,6 +5,7 @@ import 'package:flutter_spinbox/flutter_spinbox.dart';
 import 'package:smart_wind_tunnel/pages/settings/charts.dart';
 import 'wave_mode_view.dart';
 import 'gust_mode_view.dart';
+import 'sheer_mode_view.dart';
 
 class ControlPage extends StatefulWidget {
   const ControlPage({super.key});
@@ -106,65 +107,6 @@ class EvenModeView extends StatefulWidget {
 }
 
 class _EvenModeViewState extends State<EvenModeView> {
-  @override
-  void initState() {
-    super.initState();
-    _evenSliderValue = 0.0;
-  }
-
-  double _evenSliderValue = 0.0;
-  @override
-  Widget build(BuildContext context) {
-    final arduinoModel = Provider.of<SmartWindProvider>(context);
-    int val = arduinoModel.evenModeConfig['value'];
-
-    _evenSliderValue = val.toDouble();
-    return ListView(
-      children: <Widget>[
-        const SizedBox(height: 10),
-        const ListTile(
-            //leading: Icon(Icons.pentagon),
-            title: Text("Tips"),
-            subtitle: Text(
-              "Configure will be automatically saved ",
-              style:
-                  TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
-            )),
-        const SizedBox(height: 20),
-        Row(
-          children: [
-            const SizedBox(width: 10),
-            const Text("Value : "),
-            Expanded(
-                child: Slider(
-              value: _evenSliderValue,
-              min: 0,
-              max: 4095,
-              divisions: 4095,
-              label: 'Value: ${_evenSliderValue.toInt()}',
-              onChanged: (newValue) {
-                setState(() {
-                  _evenSliderValue = newValue;
-                  //do something else
-                  arduinoModel.setEvenMode(newValue.toInt());
-                });
-              },
-            )),
-          ],
-        )
-      ],
-    );
-  }
-}
-
-class SheerModeView extends StatefulWidget {
-  const SheerModeView({Key? key}) : super(key: key);
-
-  @override
-  _SheerModeViewState createState() => _SheerModeViewState();
-}
-
-class _SheerModeViewState extends State<SheerModeView> {
   @override
   void initState() {
     super.initState();
