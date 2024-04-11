@@ -320,4 +320,8 @@ class SmartWindProvider extends ChangeNotifier {
     // 或者进行数据验证等
     notifyListeners();
   }
+
+  void stop(){
+    //do something to stop the fans
+  }
 }

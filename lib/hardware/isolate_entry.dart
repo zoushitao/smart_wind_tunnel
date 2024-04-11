@@ -22,7 +22,6 @@ Future<void> childIsolateEntry(SendPort sendPort) async {
   _sendPort = sendPort; // 向主 Isolate 发送子 Isolate 的接收端口
   receivePort.listen((message) {
     //Process instructions received
-
     try {
       print(message);
       _handleInstruction(message);
@@ -115,17 +114,19 @@ void _disconnect(Map message) {
 
 void _updateConfig(Map message) {
   _config = message['config'];
-  Map? gustConfig = _config?['gust'];
+  
 
   //update gust mode configure
+  Map? gustConfig = _config?['gust'];
   GustModeRunner gustModeRunner = GustModeRunner();
   print("update config : $gustConfig");
   gustModeRunner.init(
       upperLimit: gustConfig!['upperLimit'],
       lowerLimit: gustConfig['lowerLimit'],
       periodMs: gustConfig['period']);
-
   //update wave mode configure
+  Map? waveConfig = _config?['wave'];
+  
 }
 
 void _launch(Map message) {
@@ -176,10 +177,9 @@ class GustModeRunner {
 
   static double step = 0.0, xval = 0.0;
   static double lower = 0, upper = 4095;
-  static int delay_ms = 100;
+  static const int delay_ms = 100;
   static bool _initialized = false;
 
-  
   void init(
       {required int lowerLimit,
       required int upperLimit,
@@ -211,11 +211,55 @@ class WaveModeRunner {
   }
 
   WaveModeRunner._internal();
-  int rowSettingDelay = 10; //unit:milliseond
+  static const int rowSettingDelay = 10; //unit:milliseond
+  static String direction = 'row';
+  // ignore: non_constant_identifier_names
+  static double space_step = 0.0, time_step = 0.0, upper = 4095.0, lower = 0.0;
+  static bool _isInitialized = false;
+  static int time_count = 0;
 
   List<int> waveList = <int>[];
   void init(
       {required int lowerLimit,
       required int upperLimit,
-      required int periodMs}) {}
+      required int periodMs,
+      required int waveLength,
+      required String orientation}) {
+    if (orientation != 'row' || orientation != 'col') return;
+    lower = lowerLimit.toDouble();
+    upper = upperLimit.toDouble();
+    time_step =
+        2 * math.pi / (periodMs.toDouble() / rowSettingDelay.toDouble());
+    space_step = 2 * math.pi / (waveLength.toDouble());
+
+    _isInitialized = true;
+  }
+
+  void run() {
+    if (!_isInitialized) return;
+    if (direction == 'row') {
+      for (int i = 0; i < 40; i++) {
+        double val = (upper - lower) *
+                math.sin(space_step * i + time_step * time_count) /
+                2 +
+            (upper + lower) / 2;
+        _setRow(val.toInt(), i);
+        Future.delayed(Duration(milliseconds: rowSettingDelay), () {
+          print('延迟操作完成');
+        });
+      }
+    }
+    if (direction == 'col') {
+      for (int i = 0; i < 40; i++) {
+        double val = (upper - lower) *
+                math.sin(space_step * i + time_step * time_count) /
+                2 +
+            (upper + lower) / 2;
+        _setCol(val.toInt(), i);
+        Future.delayed(Duration(milliseconds: rowSettingDelay), () {
+          print('延迟操作完成');
+        });
+      }
+    }
+  }
 }

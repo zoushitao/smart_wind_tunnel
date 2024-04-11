@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 //import providers
 import 'providers/arduino_provider.dart';
 
@@ -11,6 +12,7 @@ import './pages/homepage.dart';
 import 'pages/monitorpage.dart';
 import 'pages/settings/controlpage.dart';
 import 'dart:async';
+import 'package:flutter/services.dart';
 
 Future<void> main() async {
   await initWindow();
@@ -93,7 +95,7 @@ class _MainAppState extends State<MainApp> {
         floatingActionButton: MainFloatingButton(),
         body: Row(
           children: [
-            SafeArea(child: ExampleSidebarX(controller: _controller)),
+            SafeArea(child: SmartWindSidebarX(controller: _controller)),
             const Divider(
               color: Colors.black,
               thickness: 2.0,
@@ -147,8 +149,43 @@ class _MainAppState extends State<MainApp> {
             print("controller.selectedIndex:${_controller.selectedIndex}");
           },
         ),
+        IconButton(
+          color: Colors.white,
+          icon: Icon(Icons.exit_to_app),
+          onPressed: () {},
+        ),
       ],
       //左侧按钮
+    );
+  }
+
+  void _showExitDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Dialog Title'),
+          content: const Text('This is the content of the dialog.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // 在这里处理对话框的操作
+                Navigator.of(context).pop(); // 关闭对话框
+              },
+              child: Text('I am not leaving'),
+            ),
+            TextButton(
+              onPressed: () {
+                // 在这里处理对话框的操作
+                quitApp(context); // 关闭对话框
+              },
+              child: const Text('I said QUIT!!',
+                  style: TextStyle(
+                      fontWeight: FontWeight.normal, color: Colors.redAccent)),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -342,8 +379,8 @@ class BottomSheetButton extends StatelessWidget {
   }
 }
 
-class ExampleSidebarX extends StatefulWidget {
-  ExampleSidebarX({
+class SmartWindSidebarX extends StatefulWidget {
+  SmartWindSidebarX({
     super.key,
     required SidebarXController controller,
   }) : _controller = controller;
@@ -358,14 +395,14 @@ class ExampleSidebarX extends StatefulWidget {
   static const white = Colors.white;
 
   @override
-  State<ExampleSidebarX> createState() => _ExampleSidebarXState();
+  State<SmartWindSidebarX> createState() => _SmartWindSidebarXState();
 }
 
-class _ExampleSidebarXState extends State<ExampleSidebarX> {
+class _SmartWindSidebarXState extends State<SmartWindSidebarX> {
   var actionColor = const Color(0xFF5F5FA7).withOpacity(0.6);
 
   var divider =
-      Divider(color: ExampleSidebarX.white.withOpacity(0.3), height: 2);
+      Divider(color: SmartWindSidebarX.white.withOpacity(0.3), height: 2);
 
   @override
   Widget build(BuildContext context) {
@@ -475,4 +512,10 @@ class _ExampleSidebarXState extends State<ExampleSidebarX> {
         return 'Not found page';
     }
   }
+}
+
+void quitApp(BuildContext context) {
+  final arduinoModel = Provider.of<SmartWindProvider>(context);
+  arduinoModel.stop();
+  SystemChannels.platform.invokeMethod('SystemNavigator.pop');
 }
