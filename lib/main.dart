@@ -152,7 +152,9 @@ class _MainAppState extends State<MainApp> {
         IconButton(
           color: Colors.white,
           icon: Icon(Icons.exit_to_app),
-          onPressed: () {},
+          onPressed: () {
+            _showExitDialog(context);
+          },
         ),
       ],
       //左侧按钮
@@ -164,16 +166,9 @@ class _MainAppState extends State<MainApp> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Dialog Title'),
-          content: const Text('This is the content of the dialog.'),
+          title: const Text('Quit'),
+          content: const Text('Your fans will be turned off when you leave'),
           actions: [
-            TextButton(
-              onPressed: () {
-                // 在这里处理对话框的操作
-                Navigator.of(context).pop(); // 关闭对话框
-              },
-              child: Text('I am not leaving'),
-            ),
             TextButton(
               onPressed: () {
                 // 在这里处理对话框的操作
@@ -182,6 +177,13 @@ class _MainAppState extends State<MainApp> {
               child: const Text('I said QUIT!!',
                   style: TextStyle(
                       fontWeight: FontWeight.normal, color: Colors.redAccent)),
+            ),
+            TextButton(
+              onPressed: () {
+                // 在这里处理对话框的操作
+                Navigator.of(context).pop(); // 关闭对话框
+              },
+              child: Text('I am not leaving'),
             ),
           ],
         );
@@ -515,7 +517,7 @@ class _SmartWindSidebarXState extends State<SmartWindSidebarX> {
 }
 
 void quitApp(BuildContext context) {
-  final arduinoModel = Provider.of<SmartWindProvider>(context);
-  arduinoModel.stop();
+  //final arduinoModel = Provider.of<SmartWindProvider>(context);
+  //arduinoModel.stop();
   SystemChannels.platform.invokeMethod('SystemNavigator.pop');
 }

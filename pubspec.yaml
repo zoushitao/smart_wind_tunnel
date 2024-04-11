@@ -24,6 +24,8 @@ dependencies:
   fl_chart: ^0.67.0
   flutter_spinbox: ^0.13.1
   
+ 
+  
 
 
 dev_dependencies:

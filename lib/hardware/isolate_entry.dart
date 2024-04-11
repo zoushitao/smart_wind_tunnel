@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'hardware_interface.dart';
 import 'dart:convert';
+import 'dart:developer';
 //childIsolate main
 
 //Gloabls
 
 final HardwareInterface _realArduino = HardwareInterface();
-
+GustModeRunner gustModeRunner = GustModeRunner();
+WaveModeRunner waveModeRunner = WaveModeRunner();
 Map? _config;
 String? _currentMode;
 
@@ -23,33 +25,34 @@ Future<void> childIsolateEntry(SendPort sendPort) async {
   receivePort.listen((message) {
     //Process instructions received
     try {
-      print(message);
+      print("IN ISOLATE: $message");
       _handleInstruction(message);
     } catch (e) {
-      print(e);
+      log(e as String);
     }
   });
 
   //Runners
-  GustModeRunner gustModeRunner = GustModeRunner();
 
-  int i = 0;
+  //initialization
+  print('gust is running');
+
   while (true) {
-    //check before run
-
-    //do it
-    await Future.delayed(const Duration(milliseconds: 1000), () {
-      //_sendPort.send("hello from isolate $i");
-    });
-
-    i++;
-    print("ok $i:$_currentMode");
     switch (_currentMode) {
       case null:
+        await Future.delayed(Duration(milliseconds: 1000), () {
+          print('ISOLATE:idle now');
+        });
         continue;
       case 'gust':
         try {
-          gustModeRunner.run();
+          await gustModeRunner.run();
+        } catch (e) {
+          print(e);
+        }
+      case 'wave':
+        try {
+          await waveModeRunner.run();
         } catch (e) {
           print(e);
         }
@@ -74,13 +77,14 @@ void _handleInstruction(String message) {
     // 处理转换成功的情况
   } catch (e) {
     // 处理转换失败的情况
-    print('Error: $e');
+    print('Error in _handleInstruction : $e');
   }
   if (!jsonMap.containsKey("instruction")) {
     //error because $key "instruction" is not contained
     print("eror");
     return;
   }
+  print(jsonMap);
   switch (jsonMap['instruction']) {
     case 'connect':
       _connect(jsonMap);
@@ -114,24 +118,29 @@ void _disconnect(Map message) {
 
 void _updateConfig(Map message) {
   _config = message['config'];
-  
 
   //update gust mode configure
-  Map? gustConfig = _config?['gust'];
-  GustModeRunner gustModeRunner = GustModeRunner();
-  print("update config : $gustConfig");
+  Map? gustModeConfig = _config?['gust'];
+
   gustModeRunner.init(
-      upperLimit: gustConfig!['upperLimit'],
-      lowerLimit: gustConfig['lowerLimit'],
-      periodMs: gustConfig['period']);
+      upperLimit: gustModeConfig!['upperLimit'],
+      lowerLimit: gustModeConfig['lowerLimit'],
+      periodMs: gustModeConfig['period']);
   //update wave mode configure
-  Map? waveConfig = _config?['wave'];
-  
+  Map? waveModeConfig = _config?['wave'];
+
+  waveModeRunner.init(
+      lowerLimit: waveModeConfig!['lowerLimit'],
+      upperLimit: waveModeConfig!['upperLimit'],
+      periodMs: waveModeConfig['period'],
+      waveLength: waveModeConfig['waveLength'],
+      orientation: waveModeConfig['orientation']);
+  print("update called,wave config : $waveModeConfig");
 }
 
 void _launch(Map message) {
-  print("launched");
   String mode = message['mode'];
+  print("launched,mode:$mode");
   _currentMode = mode;
 }
 
@@ -149,6 +158,8 @@ void _setRow(int val, int row) {
   if (row > 39 || row < 0) {
     return;
   }
+  _realArduino.setRow(row, val);
+
   Map instruction = {'instruction': 'setRow', 'value': val, 'rowID': row};
   _sendPort.send(json.encode(instruction));
 }
@@ -161,6 +172,7 @@ void _setCol(int val, int col) {
   if (col > 39 || col < 0) {
     return;
   }
+  _realArduino.setCol(col, val);
   Map instruction = {'instruction': 'setCol', 'value': val, 'colID': col};
   _sendPort.send(json.encode(instruction));
 }
@@ -191,13 +203,13 @@ class GustModeRunner {
     print("init gust");
   }
 
-  void run() {
+  Future<void> run() async {
     xval += step;
     double value =
         math.sin(xval) * (upper - lower) / 2.0 + (upper + lower) / 2.0;
     _setAll(value.toInt());
-    Future.delayed(Duration(milliseconds: delay_ms), () {
-      print('延迟操作完成');
+    await Future.delayed(Duration(milliseconds: delay_ms), () {
+      print('gust is running');
     });
     print("Run value:$value");
   }
@@ -218,48 +230,63 @@ class WaveModeRunner {
   static bool _isInitialized = false;
   static int time_count = 0;
 
-  List<int> waveList = <int>[];
   void init(
       {required int lowerLimit,
       required int upperLimit,
       required int periodMs,
       required int waveLength,
       required String orientation}) {
-    if (orientation != 'row' || orientation != 'col') return;
+    if (orientation != 'row' && orientation != 'column') {
+      print("fail to init wave,orientation:$orientation");
+
+      return;
+    }
     lower = lowerLimit.toDouble();
     upper = upperLimit.toDouble();
     time_step =
-        2 * math.pi / (periodMs.toDouble() / rowSettingDelay.toDouble());
+        2 * math.pi / (periodMs.toDouble() / (rowSettingDelay.toDouble() * 40));
     space_step = 2 * math.pi / (waveLength.toDouble());
 
     _isInitialized = true;
+
+    print("init ok");
   }
 
-  void run() {
-    if (!_isInitialized) return;
+  Future<void> run() async {
+    if (!_isInitialized) {
+      await Future.delayed(Duration(milliseconds: 2000), () {
+        print("wave not init");
+        print("upper:$upper,lower:$lower");
+      });
+      //print("wave not init");
+      return;
+    }
+    time_count += 1;
     if (direction == 'row') {
       for (int i = 0; i < 40; i++) {
         double val = (upper - lower) *
-                math.sin(space_step * i + time_step * time_count) /
+                math.sin(space_step * i + time_step * time_count.toDouble()) /
                 2 +
             (upper + lower) / 2;
         _setRow(val.toInt(), i);
-        Future.delayed(Duration(milliseconds: rowSettingDelay), () {
-          print('延迟操作完成');
+        await Future.delayed(Duration(milliseconds: rowSettingDelay), () {
+          //print("row mode");
         });
       }
+      return;
     }
-    if (direction == 'col') {
+    if (direction == 'column') {
       for (int i = 0; i < 40; i++) {
         double val = (upper - lower) *
-                math.sin(space_step * i + time_step * time_count) /
+                math.sin(space_step * i + time_step * time_count.toDouble()) /
                 2 +
             (upper + lower) / 2;
         _setCol(val.toInt(), i);
-        Future.delayed(Duration(milliseconds: rowSettingDelay), () {
-          print('延迟操作完成');
+        await Future.delayed(Duration(milliseconds: rowSettingDelay), () {
+          //print("column mode");
         });
       }
+      return;
     }
   }
 }

@@ -130,9 +130,6 @@ class SmartWindProvider extends ChangeNotifier {
   //connect to serial port and start isolate
   void connect() {
     if (leftPort == null || rightPort == null) {
-      print("null");
-      print("_leftPort:$leftPort");
-      print("_rightPort:$rightPort");
       return;
       //error handling here
     }
@@ -146,6 +143,7 @@ class SmartWindProvider extends ChangeNotifier {
     };
     var instructionJsonString = jsonEncode(instruciton);
     _commands.send(instructionJsonString);
+
     //_realArduino.echoTest(leftDevice: _leftPort!, rightDevice: _rightPort!);
     _isConnected = true;
     notifyListeners();
@@ -273,7 +271,11 @@ class SmartWindProvider extends ChangeNotifier {
       throw "It's still under development ... choose another one";
     }
     //upload config
-    Map config = {'even': evenModeConfig, 'gust': gustModeConfig,'wave':waveModeConfig};
+    Map config = {
+      'even': evenModeConfig,
+      'gust': gustModeConfig,
+      'wave': waveModeConfig
+    };
     Map instruction = {'instruction': 'configUpdate', 'config': config};
     String instructionJsonString = json.encode(instruction);
     _commands.send(instructionJsonString);
@@ -281,6 +283,8 @@ class SmartWindProvider extends ChangeNotifier {
     instruction = {'instruction': 'launch', 'mode': currentPredefinedMode};
     instructionJsonString = json.encode(instruction);
     _commands.send(instructionJsonString);
+    print(instructionJsonString);
+
     _isRunning = true;
     notifyListeners();
   }
@@ -321,7 +325,7 @@ class SmartWindProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void stop(){
+  void stop() {
     //do something to stop the fans
   }
 }

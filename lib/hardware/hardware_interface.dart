@@ -93,7 +93,7 @@ class HardwareInterface {
 
         if (rightBufferIndex >= 5) {
           String strBuffer = String.fromCharCodes(rightBuffer);
-          print('Right Buffer: $strBuffer');
+          //print('Right Buffer: $strBuffer');
           rightBufferIndex = 0;
           rightBuffer = [];
         }
@@ -131,7 +131,7 @@ class HardwareInterface {
       asciiList.addAll(str.codeUnits);
       asciiList.add(10); //添加换行符
       Uint8List bytes = Uint8List.fromList(asciiList);
-      print(bytes);
+      //print(bytes);
 
       _leftPort.write(bytes);
 
@@ -150,16 +150,44 @@ class HardwareInterface {
     // 将字符串转换为 ASCII 码的 Uint8List 列表
 
     try {
-      String str = 'a:$val';
+      String str = 'r:$row,$val';
       List<int> asciiList = [];
       asciiList.addAll(str.codeUnits);
       asciiList.add(10); //添加换行符
       Uint8List bytes = Uint8List.fromList(asciiList);
-      print(bytes);
-
+      //print(bytes);
       _leftPort.write(bytes);
-
       _rightPort.write(bytes);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> setCol(int col, int val) async {
+    if (!(_leftPort.isOpen && _rightPort.isOpen)) {
+      print("error when setting all because connection failed");
+      return;
+    }
+
+    // 将字符串转换为 ASCII 码的 Uint8List 列表
+
+    try {
+      //print(bytes);
+      if (col < 20) {
+        String str = 'r:$col,$val';
+        List<int> asciiList = [];
+        asciiList.addAll(str.codeUnits);
+        asciiList.add(10); //添加换行符
+        Uint8List bytes = Uint8List.fromList(asciiList);
+        _leftPort.write(bytes);
+      } else {
+        String str = 'r:${col - 20},$val';
+        List<int> asciiList = [];
+        asciiList.addAll(str.codeUnits);
+        asciiList.add(10); //添加换行符
+        Uint8List bytes = Uint8List.fromList(asciiList);
+        _rightPort.write(bytes);
+      }
     } catch (e) {
       print(e);
     }

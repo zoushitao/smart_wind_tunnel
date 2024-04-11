@@ -9,7 +9,7 @@ class VirtualHardwareState {
 
     _matrix = List.generate(
       numRows,
-      (row) => List<int>.filled(numCols, 0),
+      (row) => List<int>.filled(numCols, 3000),
     );
   }
 
@@ -27,6 +27,7 @@ class VirtualHardwareState {
 
   void setRow(int val, int row) {
     // 获取矩阵的行数和列数
+    
     int numRows = _matrix.length;
     int numCols = _matrix[0].length;
     // 迭代遍历矩阵
@@ -36,6 +37,7 @@ class VirtualHardwareState {
   }
 
   void setCol(int val, int col) {
+    
     // 获取矩阵的行数和列数
     int numRows = _matrix.length;
     int numCols = _matrix[0].length;
@@ -44,5 +46,4 @@ class VirtualHardwareState {
       _matrix[i][col] = val;
     }
   }
-
 }
