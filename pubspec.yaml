@@ -18,7 +18,7 @@ dependencies:
     sdk: flutter
   provider: ^5.0.0
   cupertino_icons: ^1.0.6
-  flutter_libserialport: ^0.3.0
+  flutter_libserialport: ^0.4.0
   window_manager: ^0.3.8
   sidebarx: ^0.16.2
   fl_chart: ^0.67.0

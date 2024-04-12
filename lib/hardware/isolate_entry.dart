@@ -35,7 +35,6 @@ Future<void> childIsolateEntry(SendPort sendPort) async {
   //Runners
 
   //initialization
-  print('gust is running');
 
   while (true) {
     switch (_currentMode) {
@@ -112,6 +111,7 @@ void _connect(Map message) {
 }
 
 void _disconnect(Map message) {
+  _currentMode = 'idle';
   _realArduino.disconnect();
   print("disconeccted");
 }
@@ -189,7 +189,7 @@ class GustModeRunner {
 
   static double step = 0.0, xval = 0.0;
   static double lower = 0, upper = 4095;
-  static const int delay_ms = 100;
+  static const int delay_ms = 800;
   static bool _initialized = false;
 
   void init(
@@ -200,7 +200,6 @@ class GustModeRunner {
     lower = lowerLimit.toDouble();
     upper = upperLimit.toDouble();
     _initialized = true;
-    print("init gust");
   }
 
   Future<void> run() async {
@@ -211,7 +210,7 @@ class GustModeRunner {
     await Future.delayed(Duration(milliseconds: delay_ms), () {
       print('gust is running');
     });
-    print("Run value:$value");
+    //print("Run value:$value");
   }
 }
 

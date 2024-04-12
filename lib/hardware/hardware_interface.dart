@@ -93,7 +93,7 @@ class HardwareInterface {
 
         if (rightBufferIndex >= 5) {
           String strBuffer = String.fromCharCodes(rightBuffer);
-          //print('Right Buffer: $strBuffer');
+          print('Right Buffer: $strBuffer');
           rightBufferIndex = 0;
           rightBuffer = [];
         }
@@ -127,6 +127,7 @@ class HardwareInterface {
 
     try {
       String str = 'a:$val';
+      print(str);
       List<int> asciiList = [];
       asciiList.addAll(str.codeUnits);
       asciiList.add(10); //添加换行符

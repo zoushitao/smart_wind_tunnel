@@ -26,9 +26,7 @@ bool undetected_devices[50];
 
 
 /**Global Varables Related to Serial buffer**/
-const int BUFFER_SIZE = 64;  // 缓冲区大小
-char buffer[BUFFER_SIZE];    // 字符数组缓冲区
-int bufferIndex = 0;         // 缓冲区索引
+     // 缓冲区索引
 /*******************************************/
 
 
@@ -63,27 +61,22 @@ void setup() {
   
 }
 
+String buffer;
+
 void loop() {
   if (Serial.available()) {  // 检查是否有数据可供读取
-    int start_time = millis();
-    char receivedChar = Serial.read();  // 读取接收到的字符
-
-    if (receivedChar == '\n') {    // 如果接收到的字符是换行符
-      buffer[bufferIndex] = '\0';  // 添加字符串结束符
-      processBuffer();
-                   // 处理接收到的字符串
-      bufferIndex = 0; 
-      memset(buffer, 0, BUFFER_SIZE);            // 重置缓冲区索引
-    } else {
-      buffer[bufferIndex] = receivedChar;  // 将字符添加到缓冲区
-      bufferIndex++;                       // 缓冲区索引递增
-
-      // 检查缓冲区是否已满，防止溢出
-      if (bufferIndex >= BUFFER_SIZE - 1) {
-        bufferIndex = BUFFER_SIZE - 1;
-      }
-    }
+    buffer = Serial.readStringUntil('\n'); // 读取串口数据直到遇到换行符
+    //buffer.trim(); // 
+    int start = millis();
+    
+    
+ processBuffer();
+ 
   }
+}
+
+void resetBuffer(){
+  
 }
 
 void processBuffer() {
@@ -115,14 +108,20 @@ void operationSetAll() {
 #endif
   
   //parsing
+  Serial.println("all");
   int value;
-  sscanf(buffer, "a:%d", &value);
+  
+  sscanf(buffer.c_str(), "a:%d", &value);
+  
   //Serial.println(value);
   //sending
   PCAs_setAll(value);
   //reporting
   auto message = "{'message':'setAll',}";
-  Serial.println(message);
+
+  //Serial.println(message);
+  Serial.println(value);
+  
 
   
 }
@@ -132,8 +131,9 @@ void operationSetRow() {
   Serial.println("operationSetRow()");
 #endif
   int row, value;
-  sscanf(buffer, "r:%d,%d", &row, &value);
+  sscanf(buffer.c_str(), "r:%d,%d", &row, &value);
   PCAs_setRow(row, value);
+  resetBuffer();
 }
 
 void operationSetCol() {
@@ -141,8 +141,9 @@ void operationSetCol() {
   Serial.println("operationSetCol()");
 #endif
   int col, value;
-  sscanf(buffer, "c:%d,%d", &col, &value);
+  sscanf(buffer.c_str(), "c:%d,%d", &col, &value);
   PCAs_setCol(col, value);
+  resetBuffer();
 }
 
 void operationSetUnit() {
@@ -150,7 +151,7 @@ void operationSetUnit() {
   Serial.println("operationSetUnit()");
 #endif
   int row, col, value;
-  sscanf(buffer, "u:%d,%d,%d", &row, &col, &value);
+  sscanf(buffer.c_str(), "u:%d,%d,%d", &row, &col, &value);
   PCAs_setUnit(row, col, value);
 }
 
