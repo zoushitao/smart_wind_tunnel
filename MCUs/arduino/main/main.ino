@@ -1,4 +1,4 @@
-#define DEBUG  //debug switch
+//#define DEBUG  //debug switch
 
 /*third party lib required here*/
 #include "stdio.h"                    //Arduino_AVRSTL
@@ -26,7 +26,16 @@ bool undetected_devices[50];
 
 
 /**Global Varables Related to Serial buffer**/
-     // 缓冲区索引
+/*时间戳定义*/
+unsigned long lastReceiveTime = 0;
+const unsigned long receiveInterval = 30; // 每隔30ms处理一次串口数据
+
+
+/*缓冲区定义*/
+const int BUFFER_SIZE = 64; // 缓冲区大小
+char buffer[BUFFER_SIZE]; // 缓冲区数组
+int bufferIndex = 0; // 缓冲区索引
+
 /*******************************************/
 
 
@@ -42,46 +51,62 @@ const unsigned channel_map[] = {
 /*******************************************/
 
 
-enum State {
-  STATE_IDLE,
-  STATE_RUNNING,
-  STATE_STOPPED
-};
 
-enum State currentState = STATE_IDLE;
 
-//pause here
-short int frames[4][40][20];  //row,column
 
 void setup() {
-
   Serial.begin(115200);  // 初始化串口通信
   initPCAs();
-  //PCAs_detection();
-  
 }
 
-String buffer;
+
 
 void loop() {
-  if (Serial.available()) {  // 检查是否有数据可供读取
-    buffer = Serial.readStringUntil('\n'); // 读取串口数据直到遇到换行符
-    //buffer.trim(); // 
-    int start = millis();
-    
-    
- processBuffer();
- 
+  unsigned long currentTime = millis();
+
+  while (Serial.available()) {
+    char receivedChar = Serial.read();
+    buffer[bufferIndex] = receivedChar; // 将接收到的字符存储到缓冲区
+
+    if (receivedChar == '\n') { // 换行符作为结束符
+      buffer[bufferIndex] = '\0'; // 添加字符串终止符
+      Serial.println(buffer);
+      bufferIndex = 0; // 重置缓冲区索引
+    } else {
+      bufferIndex++;
+      if (bufferIndex >= BUFFER_SIZE) {
+        bufferIndex = 0; // 缓冲区溢出，重置索引
+      }
+    }
+    lastReceiveTime = currentTime;
   }
+
+  // 检查是否达到处理间隔
+  if (currentTime - lastReceiveTime >= receiveInterval) {
+    // 执行耗时函数并处理接收到的数据
+    // ...
+    lastReceiveTime = currentTime;    
+    processBuffer();
+    resetBuffer();
+  }
+  // 继续其他的循环任务
+  
 }
 
 void resetBuffer(){
-  
+  memset(buffer,0,BUFFER_SIZE);
+  bufferIndex =0;
 }
 
-void processBuffer() {
+void processBuffer(){
+  handleInstruction();
+}
+
+void handleInstruction() {
   // 在这里处理接收到的字符串
   switch (buffer[0]) {
+    case 0 :
+    return;
     case 'a':
       operationSetAll();
       break;
@@ -106,24 +131,17 @@ void operationSetAll() {
 #ifdef DEBUG
   //Serial.println("operationSetAll()");
 #endif
-  
   //parsing
-  Serial.println("all");
   int value;
-  
-  sscanf(buffer.c_str(), "a:%d", &value);
+  sscanf(buffer, "a:%d", &value);
   
   //Serial.println(value);
   //sending
   PCAs_setAll(value);
   //reporting
-  auto message = "{'message':'setAll',}";
+  Serial.println('a');
 
   //Serial.println(message);
-  Serial.println(value);
-  
-
-  
 }
 
 void operationSetRow() {
@@ -131,9 +149,10 @@ void operationSetRow() {
   Serial.println("operationSetRow()");
 #endif
   int row, value;
-  sscanf(buffer.c_str(), "r:%d,%d", &row, &value);
+  sscanf(buffer, "r:%d,%d", &row, &value);
   PCAs_setRow(row, value);
-  resetBuffer();
+  
+  Serial.println('r');
 }
 
 void operationSetCol() {
@@ -141,9 +160,10 @@ void operationSetCol() {
   Serial.println("operationSetCol()");
 #endif
   int col, value;
-  sscanf(buffer.c_str(), "c:%d,%d", &col, &value);
+  sscanf(buffer, "c:%d,%d", &col, &value);
   PCAs_setCol(col, value);
-  resetBuffer();
+  Serial.println('c');
+  
 }
 
 void operationSetUnit() {
@@ -151,7 +171,7 @@ void operationSetUnit() {
   Serial.println("operationSetUnit()");
 #endif
   int row, col, value;
-  sscanf(buffer.c_str(), "u:%d,%d,%d", &row, &col, &value);
+  sscanf(buffer, "u:%d,%d,%d", &row, &col, &value);
   PCAs_setUnit(row, col, value);
 }
 

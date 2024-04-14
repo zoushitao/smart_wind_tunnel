@@ -73,11 +73,12 @@ class HardwareInterface {
         leftBuffer.addAll(data);
         leftBufferIndex += data.length;
 
-        if (leftBufferIndex >= 5) {
+        if (leftBufferIndex >= 1) {
           String strBuffer = String.fromCharCodes(leftBuffer);
           print('Left Buffer: $strBuffer');
           leftBufferIndex = 0;
           leftBuffer = [];
+          _available = true;
         }
       });
 
@@ -91,11 +92,12 @@ class HardwareInterface {
         rightBuffer.addAll(data);
         rightBufferIndex += data.length;
 
-        if (rightBufferIndex >= 5) {
+        if (rightBufferIndex >= 1) {
           String strBuffer = String.fromCharCodes(rightBuffer);
           print('Right Buffer: $strBuffer');
           rightBufferIndex = 0;
           rightBuffer = [];
+          _available = true;
         }
       });
     } catch (err) {
@@ -140,6 +142,7 @@ class HardwareInterface {
     } catch (e) {
       print(e);
     }
+    _available = false;
   }
 
   Future<void> setRow(int row, int val) async {
@@ -162,6 +165,8 @@ class HardwareInterface {
     } catch (e) {
       print(e);
     }
+
+    _available = false;
   }
 
   Future<void> setCol(int col, int val) async {
@@ -192,5 +197,13 @@ class HardwareInterface {
     } catch (e) {
       print(e);
     }
+    _available = false;
+  }
+
+  bool _available = true;
+
+  Future<void> waitUntilAvailable() async {
+    while (!_available) {}
+    return;
   }
 }
