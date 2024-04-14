@@ -1,4 +1,5 @@
-//#define DEBUG  //debug switch
+//debug switch
+//#define DEBUG  
 
 /*third party lib required here*/
 #include "stdio.h"                    //Arduino_AVRSTL
@@ -87,6 +88,9 @@ void loop() {
     // ...
     lastReceiveTime = currentTime;    
     processBuffer();
+    #ifdef DEBUG
+    delay(600); //模拟超时情况
+#endif
     resetBuffer();
   }
   // 继续其他的循环任务
@@ -145,14 +149,20 @@ void operationSetAll() {
 }
 
 void operationSetRow() {
-#ifdef DEBUG
-  Serial.println("operationSetRow()");
-#endif
+
   int row, value;
   sscanf(buffer, "r:%d,%d", &row, &value);
   PCAs_setRow(row, value);
   
   Serial.println('r');
+  #ifdef DEBUG
+  Serial.print("operationSetRow()---");
+  Serial.print("row:");
+  Serial.print(row);
+  Serial.print("val:");
+  Serial.println(value);
+
+#endif
 }
 
 void operationSetCol() {
