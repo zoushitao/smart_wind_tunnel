@@ -189,7 +189,7 @@ class GustModeRunner {
 
   static double step = 0.0, xval = 0.0;
   static double lower = 0, upper = 4095;
-  static const int delay_ms = 800;
+  static const int delay_ms = 400;
   static bool _initialized = false;
 
   void init(
