@@ -229,7 +229,7 @@ class WaveModeRunner {
   }
 
   WaveModeRunner._internal();
-  static const int rowSettingDelay = 10; //unit:milliseond
+  static const int rowSettingDelay = 80; //unit:milliseond
   static String direction = 'row';
   // ignore: non_constant_identifier_names
   static double space_step = 0.0, time_step = 0.0, upper = 4095.0, lower = 0.0;

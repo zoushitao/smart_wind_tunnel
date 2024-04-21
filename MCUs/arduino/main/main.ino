@@ -4,7 +4,7 @@
 /*third party lib required here*/
 #include "stdio.h"                    //Arduino_AVRSTL
 #include "Adafruit_PWMServoDriver.h"  //Adafruit_PWMServoDriver
-
+#include <avr/wdt.h>
 
 /*******************************************/
 
@@ -66,13 +66,14 @@ void setup() {
   Serial.begin(115200);  // 初始化串口通信
   initPCAs();
   PCAs_setAll(0);//关闭风扇
-  //wdt_enable(WDTO_4S);//Watch Dog
+  wdt_enable(WDTO_4S);//Watch Dog
+  Serial.println("Restared");
 }
 
 
 
 void loop() {
-  //wdt_reset();//feed the dog
+  wdt_reset();//feed the dog
   
   
   unsigned long currentTime = millis();
