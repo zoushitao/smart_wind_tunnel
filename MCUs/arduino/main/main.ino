@@ -1,9 +1,11 @@
 //debug switch
-//#define DEBUG  
+#define DEBUG  
 
 /*third party lib required here*/
 #include "stdio.h"                    //Arduino_AVRSTL
 #include "Adafruit_PWMServoDriver.h"  //Adafruit_PWMServoDriver
+
+
 /*******************************************/
 
 int a = 0;
@@ -52,26 +54,36 @@ const unsigned channel_map[] = {
 /*******************************************/
 
 
-
+void TimerCallback(){
+  //goto resart;
+}
 
 
 void setup() {
+  
+  //Timer1.initialize(1000);
+  //Timer1.attachInterrupt(timerCallback, 1000000);
   Serial.begin(115200);  // 初始化串口通信
   initPCAs();
+  PCAs_setAll(0);//关闭风扇
+  //wdt_enable(WDTO_4S);//Watch Dog
 }
 
 
 
 void loop() {
+  //wdt_reset();//feed the dog
+  
+  
   unsigned long currentTime = millis();
-
+  
   while (Serial.available()) {
     char receivedChar = Serial.read();
     buffer[bufferIndex] = receivedChar; // 将接收到的字符存储到缓冲区
 
     if (receivedChar == '\n') { // 换行符作为结束符
       buffer[bufferIndex] = '\0'; // 添加字符串终止符
-      Serial.println(buffer);
+      
       bufferIndex = 0; // 重置缓冲区索引
     } else {
       bufferIndex++;
@@ -88,9 +100,6 @@ void loop() {
     // ...
     lastReceiveTime = currentTime;    
     processBuffer();
-    #ifdef DEBUG
-    delay(600); //模拟超时情况
-#endif
     resetBuffer();
   }
   // 继续其他的循环任务
@@ -100,6 +109,7 @@ void loop() {
 void resetBuffer(){
   memset(buffer,0,BUFFER_SIZE);
   bufferIndex =0;
+  
 }
 
 void processBuffer(){
@@ -122,6 +132,9 @@ void handleInstruction() {
       break;
     case 'u':
       operationSetUnit();
+      break;
+      case 't':
+      PCAs_detection();
       break;
 
     case 'e' :
@@ -246,23 +259,23 @@ void PCAs_detection() {
   byte error, address;
   int deviceCount = 0;
 
-#ifdef DEBUG
+
   Serial.println("Scanning...");
-#endif
+
 
   for (address = 0x40; address <= 0x71; address++) {
     Wire.beginTransmission(address);
     error = Wire.endTransmission();
 
     if (error == 0) {
-#ifdef DEBUG
+
       Serial.print("Device found at address 0x");
 
       if (address < 16) {
         Serial.print("0");
       }
       Serial.println(address, HEX);
-#endif
+
 
       TestCase::undetected_devices[address - 0x40] = false;
       deviceCount++;
@@ -271,6 +284,9 @@ void PCAs_detection() {
 
   if (deviceCount == 0) {
     Serial.println("No devices found.");
+  }else{
+    Serial.print("Total device found:");
+    Serial.println(deviceCount);
   }
 
   //Step 2 : test time consumed
@@ -293,14 +309,14 @@ void PCAs_detection() {
   end = millis();
   TestCase::col_millis = (end - start) / 2 + 1;
 
-#ifdef DEBUG
+
   Serial.print("All time : ");
   Serial.print(TestCase::all_millis);
   Serial.print(" Row time :");
   Serial.print(TestCase::row_millis);
   Serial.print(" Col time :");
   Serial.println(TestCase::col_millis);
-#endif
+
 
 }
 

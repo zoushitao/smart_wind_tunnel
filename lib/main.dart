@@ -250,13 +250,20 @@ class MainFloatingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final arduinoModel = Provider.of<SmartWindProvider>(context);
     return FloatingActionButton(
       onPressed: () {
         // 在这里添加你的按钮点击事件处理
-        // Provider.of<SmartWindProvider>(context, listen: false).startIsolate();
+        if (arduinoModel.isRunning) {
+          arduinoModel.stop();
+        } else {
+          arduinoModel.launch();
+        }
       },
-      child: Icon(Icons.pause),
-      backgroundColor: Colors.green,
+      backgroundColor: arduinoModel.isRunning ? Colors.yellow : Colors.green,
+      child: arduinoModel.isRunning
+          ? const Icon(Icons.pause)
+          : const Icon(Icons.play_arrow),
     );
   }
 }

@@ -142,7 +142,6 @@ class HardwareInterface {
     } catch (e) {
       print(e);
     }
-    _available = false;
   }
 
   Future<void> setRow(int row, int val) async {
@@ -165,8 +164,6 @@ class HardwareInterface {
     } catch (e) {
       print(e);
     }
-
-    _available = false;
   }
 
   Future<void> setCol(int col, int val) async {
@@ -197,13 +194,9 @@ class HardwareInterface {
     } catch (e) {
       print(e);
     }
-    _available = false;
   }
 
   bool _available = true;
 
-  Future<void> waitUntilAvailable() async {
-    while (!_available) {}
-    return;
-  }
+  
 }

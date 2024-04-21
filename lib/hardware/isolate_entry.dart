@@ -93,7 +93,14 @@ void _handleInstruction(String message) {
       _updateConfig(jsonMap);
     case 'launch':
       _launch(jsonMap);
+    case 'stop':
+      _stop(jsonMap);
   }
+}
+
+void _stop(Map message) {
+  _setAll(0);
+  _currentMode = null;
 }
 
 void _connect(Map message) {
@@ -189,7 +196,7 @@ class GustModeRunner {
 
   static double step = 0.0, xval = 0.0;
   static double lower = 0, upper = 4095;
-  static const int delay_ms = 400;
+  static const int delay_ms = 200;
   static bool _initialized = false;
 
   void init(

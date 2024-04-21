@@ -327,5 +327,11 @@ class SmartWindProvider extends ChangeNotifier {
 
   void stop() {
     //do something to stop the fans
+    //lauch actually
+    var instruction = {'instruction': 'stop'};
+    var instructionJsonString = json.encode(instruction);
+    _commands.send(instructionJsonString);
+    _isRunning = false;
+    notifyListeners();
   }
 }
