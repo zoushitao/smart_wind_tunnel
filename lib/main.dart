@@ -365,13 +365,15 @@ class BottomSheetButton extends StatelessWidget {
             context: context,
             builder: (BuildContext context) {
               return SizedBox(
-                height: 200,
+                height: 600,
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       const Text('Modal BottomSheet'),
+                      ArduinoStatusCard(),
+                      SizedBox(height: 10),
                       ElevatedButton(
                         child: const Text('Close BottomSheet'),
                         onPressed: () => Navigator.pop(context),

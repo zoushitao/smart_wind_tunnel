@@ -27,7 +27,7 @@ void setup() {
 void loop() {
   plotClouds();
   delay(5000);
-  debugPrint();//打印数组
+  //debugPrint();//打印数组
 }
 
 
@@ -116,14 +116,22 @@ void PCAs_setUnit(int row, int col, int pwm) {
     Serial.println(col);
   }
   // 判断是左边还是右边
-  if (col < 19) {
+  if (col < 20) {
     getLeftDeviceInfo(row, col, PCA_count, channel);
     PCAs_left[PCA_count].setPWM(channel, 0, pwm);
+    Serial.print("Left#");
   } else {
     col = col -20;
     getRightDeviceInfo(row, col, PCA_count, channel);
     PCAs_right[PCA_count].setPWM(channel, 0, pwm);
   }
+  //for debug use
+  Serial.print("!Error in  PCAs_setUnit();");
+    Serial.print("row:");
+    Serial.print(row);
+    Serial.print(",col:");
+    Serial.print(col);
+    Serial.print("PCA_count");
   
 }
 
