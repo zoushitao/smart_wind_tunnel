@@ -4,4 +4,4 @@ Traditional wind tunnel experiments suffer from many problems such as large foot
 
 ## Hardware Design 
 
-![pictures]
+![[pictures/wind_tunnel.png]]
