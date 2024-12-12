@@ -122,8 +122,11 @@ class SmartWindProvider extends ChangeNotifier {
     } catch (err) {
       print('串口错误：$err');
     }
-    leftPort = _availablePorts[0];
-    rightPort = _availablePorts[0];
+    if (_availablePorts.length >= 2) {
+      leftPort = _availablePorts[0];
+      rightPort = _availablePorts[0];
+    }
+
     notifyListeners();
   }
 
