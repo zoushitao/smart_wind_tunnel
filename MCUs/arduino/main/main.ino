@@ -166,6 +166,7 @@ void operationSetRow() {
 
   int row, value;
   sscanf(buffer, "r:%d,%d", &row, &value);
+  if(row>8)return; //modified for demo
   PCAs_setRow(row, value);
   
   Serial.println('r');
@@ -209,14 +210,18 @@ void initPCAs() {
 }
 
 void PCAs_setAll(int pwm) {
-  for (int i = 0; i < 50; i++) {
+  int i_list = [0,1,5,6];
+  for (int i = 0; i < 4; i++) {    
     for (int j = 0; j < 16; j++) {
-      PCAs[i].setPWM(j, 0, pwm);
+      PCAs[i_list[i]].setPWM(j, 0, pwm);
     }
   }
 }
 
 void PCAs_setUnit(int row, int col, int pwm) {
+  if(row>4 || col >4){
+    return;
+  }
   int PCA_count, channel;
   if (controler_position == LEFT) {
     getLeftDeviceInfo(row, col, PCA_count, channel);

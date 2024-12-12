@@ -1,3 +1,6 @@
 {
-    "dart.flutterSdkPath": "~/flutter"
+    "dart.flutterSdkPath": "~/flutter",
+    "files.associations": {
+        "ostream": "cpp"
+    }
 }
