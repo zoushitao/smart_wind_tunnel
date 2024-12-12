@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 import 'package:flutter/material.dart';
 //import providers
 import '../providers/arduino_provider.dart';
@@ -194,8 +193,8 @@ class _MonitorWidgetState extends State<MonitorWidget> {
     int numRows = matrix.length;
     int numCols = matrix[0].length;
     // 迭代遍历矩阵
-    for (int i = 0; i < numRows; i++) {
-      for (int j = 0; j < numCols; j++) {
+    for (int i = 0; i < 8; i++) {
+      for (int j = 0; j < 8; j++) {
         Color cellColor = pwmToColor(colorScheme, matrix[i][j]);
         _cells.add(DecoratedBox(
           decoration: BoxDecoration(
@@ -216,7 +215,7 @@ class _MonitorWidgetState extends State<MonitorWidget> {
   GridView _generateGridView() {
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 40, // 每行显示的列数
+        crossAxisCount: 8, // 每行显示的列数
         crossAxisSpacing: 3.0, // 列之间的间距
         mainAxisSpacing: 3.0, // 行之间的间距
         childAspectRatio: 1.0, // 宽高比例为1:1

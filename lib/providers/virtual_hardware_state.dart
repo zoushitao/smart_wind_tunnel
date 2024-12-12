@@ -4,8 +4,8 @@ class VirtualHardwareState {
   List<List<int>> get matrix => _matrix;
 
   VirtualHardwareState() {
-    int numRows = 8;
-    int numCols = 8;
+    int numRows = 40;
+    int numCols = 40;
 
     _matrix = List.generate(
       numRows,
